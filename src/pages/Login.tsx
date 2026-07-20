@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Form, Input, Button, Card, message } from 'antd';
+import { Form, Input, Button, Card, message, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -10,7 +10,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const onFinish = async (values: { username: string; password: string; rememberMe?: boolean }) => {
     setLoading(true);
     try {
       const response = await api.post('/auth/login', values);
@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
       <Card title="MultiTenantBM Login" style={{ width: 350 }}>
-        <Form onFinish={onFinish} layout="vertical">
+        <Form onFinish={onFinish} layout="vertical" initialValues={{ rememberMe: false }}>
           <Form.Item
             name="username"
             rules={[{ required: true, message: 'Username is required' }]}
@@ -40,6 +40,10 @@ export default function Login() {
             rules={[{ required: true, message: 'Password is required' }]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Password" />
+          </Form.Item>
+
+          <Form.Item name="rememberMe" valuePropName="checked">
+            <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
           <Form.Item>

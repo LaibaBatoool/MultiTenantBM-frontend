@@ -1,15 +1,24 @@
 import api from './axios';
 
+interface UserRef {
+  id: number;
+  username: string;
+  fullName: string;
+}
+
 export interface BusinessUnit {
   id: number;
   name: string;
   adminId: number | null;
   createdAt: string;
   createdBy: number;
+  createdByUser?: UserRef;
   updatedAt: string | null;
   updatedBy: number | null;
+  updatedByUser?: UserRef;
   deletedAt: string | null;
   deletedBy: number | null;
+  deletedByUser?: UserRef;
 }
 
 export interface CreateBusinessUnitPayload {

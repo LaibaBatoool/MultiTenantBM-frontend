@@ -3,6 +3,7 @@ import { Table, Button, Input, Select, Space, Popconfirm, message, Typography } 
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getBusinessUnits, deleteBusinessUnit, type BusinessUnit } from '../api/businessUnits';
+import { formatDate } from '../utils/date';
 
 const { Title } = Typography;
 
@@ -62,32 +63,36 @@ export default function BusinessUnits() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: BusinessUnit) => (
-        <a onClick={() => navigate(`/business-units/${record.id}/edit`)}>{text}</a>
-      ),
+      render: (text: string, record: BusinessUnit) =>
+        status === 'inactive' ? (
+          <span>{text}</span>
+        ) : (
+          <a onClick={() => navigate(`/business-units/${record.id}/edit`)}>{text}</a>
+        ),
     },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleString(),
+      render: (date: string) => formatDate(date),
     },
     {
       title: 'Created By',
-      dataIndex: 'createdBy',
+      dataIndex: 'createdByUser',
       key: 'createdBy',
+      render: (user: BusinessUnit['createdByUser']) => user?.username || '',
     },
     {
       title: 'Modified At',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (date: string | null) => (date ? new Date(date).toLocaleString() : '—'),
+      render: (date: string | null) => formatDate(date),
     },
     {
       title: 'Modified By',
-      dataIndex: 'updatedBy',
+      dataIndex: 'updatedByUser',
       key: 'updatedBy',
-      render: (val: number | null) => val ?? '—',
+      render: (user: BusinessUnit['updatedByUser']) => user?.username || '',
     },
   ];
 
@@ -96,13 +101,13 @@ export default function BusinessUnits() {
       title: 'Deleted At',
       dataIndex: 'deletedAt',
       key: 'deletedAt',
-      render: (date: string | null) => (date ? new Date(date).toLocaleString() : '—'),
+      render: (date: string | null) => formatDate(date),
     },
     {
       title: 'Deleted By',
-      dataIndex: 'deletedBy',
+      dataIndex: 'deletedByUser',
       key: 'deletedBy',
-      render: (val: number | null) => val ?? '—',
+      render: (user: BusinessUnit['deletedByUser']) => user?.username || '',
     },
   ];
 
@@ -163,7 +168,7 @@ export default function BusinessUnits() {
         dataSource={filteredData}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: 5 }}
       />
     </div>
   );
