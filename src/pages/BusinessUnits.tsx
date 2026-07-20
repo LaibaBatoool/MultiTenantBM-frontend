@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Input, Space, Popconfirm, message, Typography } from 'antd';
+import { Table, Button, Input, Select, Space, Popconfirm, message, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getBusinessUnits, deleteBusinessUnit } from '../api/businessUnits';
-import type { BusinessUnit } from '../api/businessUnits';
+import { getBusinessUnits, deleteBusinessUnit, type BusinessUnit } from '../api/businessUnits';
 
 const { Title } = Typography;
 
@@ -13,11 +12,12 @@ export default function BusinessUnits() {
   const [filteredData, setFilteredData] = useState<BusinessUnit[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [status, setStatus] = useState<'active' | 'inactive'>('active');
 
-  const fetchData = async () => {
+  const fetchData = async (currentStatus: 'active' | 'inactive') => {
     setLoading(true);
     try {
-      const units = await getBusinessUnits();
+      const units = await getBusinessUnits(currentStatus);
       setData(units);
       setFilteredData(units);
     } catch (error) {
@@ -28,8 +28,8 @@ export default function BusinessUnits() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(status);
+  }, [status]);
 
   const handleSearch = () => {
     if (!searchText.trim()) {
@@ -51,13 +51,13 @@ export default function BusinessUnits() {
     try {
       await deleteBusinessUnit(id);
       message.success('Business unit deleted');
-      fetchData();
+      fetchData(status);
     } catch (error) {
       message.error('Failed to delete business unit');
     }
   };
 
-  const columns = [
+  const baseColumns = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -67,34 +67,66 @@ export default function BusinessUnits() {
       ),
     },
     {
-      title: 'Admin ID',
-      dataIndex: 'adminId',
-      key: 'adminId',
-      render: (adminId: number | null) => adminId ?? '—',
-    },
-    {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
+      render: (date: string) => new Date(date).toLocaleString(),
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: unknown, record: BusinessUnit) => (
-        <Popconfirm
-          title="Delete this business unit?"
-          onConfirm={() => handleDelete(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button danger icon={<DeleteOutlined />} size="small">
-            Delete
-          </Button>
-        </Popconfirm>
-      ),
+      title: 'Created By',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+    },
+    {
+      title: 'Modified At',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (date: string | null) => (date ? new Date(date).toLocaleString() : '—'),
+    },
+    {
+      title: 'Modified By',
+      dataIndex: 'updatedBy',
+      key: 'updatedBy',
+      render: (val: number | null) => val ?? '—',
     },
   ];
+
+  const inactiveColumns = [
+    {
+      title: 'Deleted At',
+      dataIndex: 'deletedAt',
+      key: 'deletedAt',
+      render: (date: string | null) => (date ? new Date(date).toLocaleString() : '—'),
+    },
+    {
+      title: 'Deleted By',
+      dataIndex: 'deletedBy',
+      key: 'deletedBy',
+      render: (val: number | null) => val ?? '—',
+    },
+  ];
+
+  const actionsColumn = {
+    title: 'Actions',
+    key: 'actions',
+    render: (_: unknown, record: BusinessUnit) => (
+      <Popconfirm
+        title="Delete this business unit?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Yes"
+        cancelText="No"
+      >
+        <Button danger icon={<DeleteOutlined />} size="small">
+          Delete
+        </Button>
+      </Popconfirm>
+    ),
+  };
+
+  const columns =
+    status === 'inactive'
+      ? [...baseColumns, ...inactiveColumns]
+      : [...baseColumns, actionsColumn];
 
   return (
     <div>
@@ -105,13 +137,22 @@ export default function BusinessUnits() {
         </Button>
       </div>
 
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 16, justifyContent: 'flex-start', width: '100%' }}>
         <Input
           placeholder="Search by name..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onPressEnter={handleSearch}
           style={{ width: 250 }}
+        />
+        <Select
+          value={status}
+          onChange={(value) => setStatus(value)}
+          style={{ width: 150 }}
+          options={[
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'In-Active' },
+          ]}
         />
         <Button onClick={handleSearch}>Search</Button>
         <Button onClick={handleClear}>Clear</Button>
