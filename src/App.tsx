@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard';
 import BusinessUnits from './pages/BusinessUnits';
 import Staff from './pages/Staff';
 import AppLayout from './components/AppLayout';
+import BusinessUnitForm from './pages/BusinessUnitForm';
+import EditProfile from './pages/EditProfile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -30,7 +32,10 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="business-units" element={<BusinessUnits />} />
+        <Route path="business-units/new" element={<BusinessUnitForm />} />
+        <Route path="business-units/:id/edit" element={<BusinessUnitForm />} />
         <Route path="staff" element={<Staff />} />
+        <Route path="profile" element={<EditProfile />} />
       </Route>
     </Routes>
   );
