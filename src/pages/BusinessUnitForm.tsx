@@ -21,7 +21,13 @@ export default function BusinessUnitForm() {
   const loadBusinessUnit = async () => {
     try {
       const unit = await getBusinessUnit(Number(id));
-      form.setFieldsValue({ name: unit.name });
+      form.setFieldsValue({
+        name: unit.name,
+        adminFullName: unit.admin?.fullName,
+        adminUsername: unit.admin?.username,
+        adminEmail: unit.admin?.email,
+        // password fields intentionally left blank
+      });
     } catch (error) {
       message.error('Failed to load business unit');
     }
@@ -31,7 +37,16 @@ export default function BusinessUnitForm() {
     setLoading(true);
     try {
       if (isEditMode) {
-        await updateBusinessUnit(Number(id), { name: values.name });
+        const payload: any = {
+          name: values.name,
+          adminFullName: values.adminFullName,
+          adminUsername: values.adminUsername,
+          adminEmail: values.adminEmail,
+        };
+        if (values.adminPassword) {
+          payload.adminPassword = values.adminPassword;
+        }
+        await updateBusinessUnit(Number(id), payload);
         message.success('Business unit updated');
       } else {
         await createBusinessUnit(values);
@@ -39,7 +54,7 @@ export default function BusinessUnitForm() {
       }
       navigate('/business-units');
     } catch (error: any) {
-      message.error(error?.response?.data?.message?.[0] || 'Something went wrong');
+      message.error(error?.response?.data?.message?.[0] || error?.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -70,7 +85,7 @@ export default function BusinessUnitForm() {
       </div>
 
       <Row gutter={16}>
-        <Col span={isEditMode ? 24 : 12}>
+        <Col span={12}>
           <Card title="Business Unit Details" size="small">
             <Form.Item
               label="Name"
@@ -82,61 +97,81 @@ export default function BusinessUnitForm() {
           </Card>
         </Col>
 
-        {!isEditMode && (
-          <Col span={12}>
-            <Card title="Contact Person Credentials" size="small" style={{ marginBottom: 16 }}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    label="Username"
-                    name="adminUsername"
-                    rules={[{ required: true, message: 'Username is required' }]}
-                  >
-                    <Input placeholder="e.g. ali.north" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    label="Password"
-                    name="adminPassword"
-                    rules={[
-                      { required: true, message: 'Password is required' },
-                      { min: 6, message: 'Minimum 6 characters' },
-                    ]}
-                  >
-                    <Input.Password placeholder="Minimum 6 characters" />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
+        <Col span={12}>
+          <Card title="Contact Person Credentials" size="small" style={{ marginBottom: 16 }}>
+            <Form.Item
+              label="User Name"
+              name="adminUsername"
+              rules={[{ required: true, message: 'Username is required' }]}
+            >
+              <Input placeholder="e.g. ali.north" />
+            </Form.Item>
 
-            <Card title="Contact Person Details" size="small">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    label="Full Name"
-                    name="adminFullName"
-                    rules={[{ required: true, message: 'Full name is required' }]}
-                  >
-                    <Input placeholder="e.g. Ali Raza" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    label="Email"
-                    name="adminEmail"
-                    rules={[
-                      { required: true, message: 'Email is required' },
-                      { type: 'email', message: 'Enter a valid email' },
-                    ]}
-                  >
-                    <Input placeholder="e.g. ali@example.com" />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        )}
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label="Password"
+                  name="adminPassword"
+                  rules={
+                    isEditMode
+                      ? [{ min: 6, message: 'Minimum 6 characters' }]
+                      : [
+                        { required: true, message: 'Password is required' },
+                        { min: 6, message: 'Minimum 6 characters' },
+                      ]
+                  }
+                >
+                  <Input.Password placeholder={isEditMode ? 'Leave blank to keep current' : 'Password'} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  dependencies={['adminPassword']}
+                  rules={[
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        const pwd = getFieldValue('adminPassword');
+                        if (!pwd && !value) return Promise.resolve();
+                        if (pwd === value) return Promise.resolve();
+                        return Promise.reject(new Error('Passwords do not match'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password placeholder={isEditMode ? 'Leave blank to keep current' : 'Confirm Password'} />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
+
+          <Card title="Contact Person Details" size="small">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label="Full Name"
+                  name="adminFullName"
+                  rules={[{ required: true, message: 'Full name is required' }]}
+                >
+                  <Input placeholder="e.g. Ali Raza" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Email"
+                  name="adminEmail"
+                  rules={[
+                    { required: true, message: 'Email is required' },
+                    { type: 'email', message: 'Enter a valid email' },
+                  ]}
+                >
+                  <Input placeholder="e.g. ali@example.com" />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
       </Row>
     </Form>
   );

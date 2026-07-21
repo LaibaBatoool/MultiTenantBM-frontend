@@ -38,6 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('selectedBusinessUnit');
+    localStorage.removeItem('selectedBusinessUnitUserId');
     setIsAuthenticated(false);
     setCurrentUser(null);
   };

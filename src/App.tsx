@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { BusinessUnitProvider, useBusinessUnit } from './context/BusinessUnitContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import BusinessUnits from './pages/BusinessUnits';
-import Staff from './pages/Staff';
-import AppLayout from './components/AppLayout';
 import BusinessUnitForm from './pages/BusinessUnitForm';
+import Users from './pages/Users';
+import Roles from './pages/Roles';
 import EditProfile from './pages/EditProfile';
+import AppLayout from './components/AppLayout';
+import { Spin } from 'antd';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -15,6 +18,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
+  const { selectedBusinessUnit, isSuperadmin, isReady } = useBusinessUnit();
+
+  if (isAuthenticated && !isReady) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -30,11 +42,21 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Dashboard />} />
-        <Route path="business-units" element={<BusinessUnits />} />
-        <Route path="business-units/new" element={<BusinessUnitForm />} />
-        <Route path="business-units/:id/edit" element={<BusinessUnitForm />} />
-        <Route path="staff" element={<Staff />} />
+        <Route index element={selectedBusinessUnit ? <Dashboard /> : <Navigate to="/business-units" />} />
+        <Route
+          path="business-units"
+          element={isSuperadmin ? <BusinessUnits /> : <Navigate to="/" />}
+        />
+        <Route
+          path="business-units/new"
+          element={isSuperadmin ? <BusinessUnitForm /> : <Navigate to="/" />}
+        />
+        <Route
+          path="business-units/:id/edit"
+          element={isSuperadmin ? <BusinessUnitForm /> : <Navigate to="/" />}
+        />
+        <Route path="staff/users" element={<Users />} />
+        <Route path="staff/roles" element={<Roles />} />
         <Route path="profile" element={<EditProfile />} />
       </Route>
     </Routes>
@@ -45,7 +67,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <BusinessUnitProvider>
+          <AppRoutes />
+        </BusinessUnitProvider>
       </AuthProvider>
     </BrowserRouter>
   );

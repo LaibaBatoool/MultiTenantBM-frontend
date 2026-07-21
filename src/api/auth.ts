@@ -5,6 +5,7 @@ export interface CurrentUser {
   fullName: string;
   username: string;
   email: string;
+  businessUnitId: number | null;
 }
 
 export const getCurrentUser = async (): Promise<CurrentUser> => {
