@@ -10,6 +10,7 @@ import Roles from './pages/Roles';
 import EditProfile from './pages/EditProfile';
 import AppLayout from './components/AppLayout';
 import { Spin } from 'antd';
+import RoleForm from './pages/RoleForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -57,6 +58,8 @@ function AppRoutes() {
         />
         <Route path="staff/users" element={<Users />} />
         <Route path="staff/roles" element={<Roles />} />
+        <Route path="staff/roles/new" element={<RoleForm />} />
+        <Route path="staff/roles/:id/edit" element={<RoleForm />} />
         <Route path="profile" element={<EditProfile />} />
       </Route>
     </Routes>

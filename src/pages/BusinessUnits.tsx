@@ -11,12 +11,15 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getBusinessUnits, deleteBusinessUnit, restoreBusinessUnit, type BusinessUnit } from '../api/businessUnits';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { useAuth } from '../context/AuthContext';
 
 const { Title } = Typography;
 
 export default function BusinessUnits() {
   const navigate = useNavigate();
   const { selectBusinessUnit } = useBusinessUnit();
+  const { hasPermission } = useAuth();
+
   const [data, setData] = useState<BusinessUnit[]>([]);
   const [filteredData, setFilteredData] = useState<BusinessUnit[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,9 +48,11 @@ export default function BusinessUnits() {
       setFilteredData(data);
       return;
     }
+
     const filtered = data.filter((item) =>
       item.name.toLowerCase().includes(searchText.toLowerCase()),
     );
+
     setFilteredData(filtered);
   };
 
@@ -71,6 +76,7 @@ export default function BusinessUnits() {
         await restoreBusinessUnit(bu.id);
         message.success('Business unit activated');
       }
+
       fetchData(status);
     } catch (error) {
       message.error('Action failed');
@@ -79,13 +85,27 @@ export default function BusinessUnits() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
         <Title level={4} style={{ margin: 0 }}>
           Business Units ({filteredData.length})
         </Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/business-units/new')}>
-          Add New
-        </Button>
+
+        {hasPermission('business-units.add') && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/business-units/new')}
+          >
+            Add New
+          </Button>
+        )}
       </div>
 
       <Space style={{ marginBottom: 16 }}>
@@ -96,6 +116,7 @@ export default function BusinessUnits() {
           onPressEnter={handleSearch}
           style={{ width: 250 }}
         />
+
         <Select
           value={status}
           onChange={(value) => setStatus(value)}
@@ -105,6 +126,7 @@ export default function BusinessUnits() {
             { value: 'inactive', label: 'In-Active' },
           ]}
         />
+
         <Button onClick={handleSearch}>Search</Button>
         <Button onClick={handleClear}>Clear</Button>
       </Space>
@@ -114,17 +136,34 @@ export default function BusinessUnits() {
           <Col key={bu.id} xs={24} sm={12} md={8} lg={6}>
             <Card
               size="small"
+              loading={loading}
               actions={[
-                <LoginOutlined key="select" title="Select" onClick={() => handleSelect(bu)} />,
-                <EditOutlined key="edit" title="Edit" onClick={() => navigate(`/business-units/${bu.id}/edit`)} />,
+                <LoginOutlined
+                  key="select"
+                  title="Select"
+                  onClick={() => handleSelect(bu)}
+                />,
+                <EditOutlined
+                  key="edit"
+                  title="Edit"
+                  onClick={() => navigate(`/business-units/${bu.id}/edit`)}
+                />,
                 <Popconfirm
                   key="toggle"
-                  title={status === 'active' ? 'Deactivate this business unit?' : 'Activate this business unit?'}
+                  title={
+                    status === 'active'
+                      ? 'Deactivate this business unit?'
+                      : 'Activate this business unit?'
+                  }
                   onConfirm={() => handleToggleStatus(bu)}
                   okText="Yes"
                   cancelText="No"
                 >
-                  {status === 'active' ? <EyeOutlined title="Deactivate" /> : <EyeInvisibleOutlined title="Activate" />}
+                  {status === 'active' ? (
+                    <EyeOutlined title="Deactivate" />
+                  ) : (
+                    <EyeInvisibleOutlined title="Activate" />
+                  )}
                 </Popconfirm>,
               ]}
             >

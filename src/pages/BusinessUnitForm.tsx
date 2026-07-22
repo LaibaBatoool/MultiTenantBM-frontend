@@ -34,22 +34,24 @@ export default function BusinessUnitForm() {
   };
 
   const onFinish = async (values: any) => {
+    const { confirmPassword, ...rest } = values;
+
     setLoading(true);
     try {
       if (isEditMode) {
         const payload: any = {
-          name: values.name,
-          adminFullName: values.adminFullName,
-          adminUsername: values.adminUsername,
-          adminEmail: values.adminEmail,
+          name: rest.name,
+          adminFullName: rest.adminFullName,
+          adminUsername: rest.adminUsername,
+          adminEmail: rest.adminEmail,
         };
-        if (values.adminPassword) {
-          payload.adminPassword = values.adminPassword;
+        if (rest.adminPassword) {
+          payload.adminPassword = rest.adminPassword;
         }
         await updateBusinessUnit(Number(id), payload);
         message.success('Business unit updated');
       } else {
-        await createBusinessUnit(values);
+        await createBusinessUnit(rest);
         message.success('Business unit created');
       }
       navigate('/business-units');

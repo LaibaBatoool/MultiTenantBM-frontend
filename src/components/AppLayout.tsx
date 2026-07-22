@@ -20,6 +20,7 @@ import type { MenuProps } from 'antd';
 const { Header, Sider, Content } = Layout;
 
 export default function AppLayout() {
+  const { hasPermission } = useAuth();
   const { logout, currentUser } = useAuth();
   const { selectedBusinessUnit, isSuperadmin, clearSelectedBusinessUnit } = useBusinessUnit();
   const navigate = useNavigate();
@@ -38,18 +39,25 @@ export default function AppLayout() {
         ? [{ key: '/business-units', icon: <ApartmentOutlined />, label: 'Business Units' }]
         : []),
       { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
-      {
-        key: 'staff-group',
-        icon: <TeamOutlined />,
-        label: 'Staff',
-        children: [
-          { key: '/staff/users', icon: <UsergroupAddOutlined />, label: 'Users' },
-          { key: '/staff/roles', icon: <SafetyCertificateOutlined />, label: 'Roles' },
-        ],
-      },
+      ...(hasPermission('staff.users.view') || hasPermission('staff.roles.view')
+        ? [
+          {
+            key: 'staff-group',
+            icon: <TeamOutlined />,
+            label: 'Staff',
+            children: [
+              ...(hasPermission('staff.users.view')
+                ? [{ key: '/staff/users', icon: <UsergroupAddOutlined />, label: 'Users' }]
+                : []),
+              ...(hasPermission('staff.roles.view')
+                ? [{ key: '/staff/roles', icon: <SafetyCertificateOutlined />, label: 'Roles' }]
+                : []),
+            ],
+          },
+        ]
+        : []),
     ]
     : [{ key: '/business-units', icon: <ApartmentOutlined />, label: 'Business Units' }];
-
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'user-info',
