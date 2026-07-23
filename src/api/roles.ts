@@ -9,6 +9,7 @@ export interface Role {
   id: number;
   name: string;
   description: string | null;
+  isActive: boolean;
   permissions: Permission[];
 }
 
@@ -56,4 +57,9 @@ export const getUserRoles = async (userId: number): Promise<Role[]> => {
 export const getMyPermissions = async (): Promise<string[]> => {
   const response = await api.get('/roles/me/permissions');
   return response.data.permissions;
+};
+
+export const toggleRoleActive = async (id: number) => {
+  const response = await api.patch(`/roles/${id}/toggle-active`);
+  return response.data;
 };

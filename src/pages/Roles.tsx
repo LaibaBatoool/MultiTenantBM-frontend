@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { getRoles, deleteRole, type Role } from '../api/roles';
 import { useAuth } from '../context/AuthContext';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { Switch } from 'antd';
+import { toggleRoleActive } from '../api/roles';
 
 const { Title } = Typography;
 
@@ -45,6 +47,16 @@ export default function Roles() {
     }
   };
 
+  const handleToggleActive = async (id: number) => {
+    try {
+      await toggleRoleActive(id);
+      message.success('Role status updated');
+      fetchData();
+    } catch (error) {
+      message.error('Failed to update role status');
+    }
+  };
+
   const columns = [
     {
       title: 'Name',
@@ -59,6 +71,17 @@ export default function Roles() {
       dataIndex: 'description',
       key: 'description',
       render: (val: string | null) => val || '',
+    },
+    {
+      title: 'Active',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (isActive: boolean, record: Role) =>
+        hasPermission('staff.roles.edit') ? (
+          <Switch checked={isActive} onChange={() => handleToggleActive(record.id)} />
+        ) : (
+          <span>{isActive ? 'Yes' : 'No'}</span>
+        ),
     },
     {
       title: 'Permissions',
