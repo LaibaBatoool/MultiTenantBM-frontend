@@ -18,18 +18,18 @@ export interface RolePayload {
   permissionIds?: number[];
 }
 
-export const getRoles = async (): Promise<Role[]> => {
-  const response = await api.get('/roles');
-  return response.data.roles;
-};
-
 export const getRole = async (id: number): Promise<Role> => {
   const response = await api.get(`/roles/${id}`);
   return response.data.role;
 };
 
-export const createRole = async (payload: RolePayload) => {
-  const response = await api.post('/roles', payload);
+export const getRoles = async (businessUnitId?: number): Promise<Role[]> => {
+  const response = await api.get('/roles', { params: { businessUnitId } });
+  return response.data.roles;
+};
+
+export const createRole = async (payload: RolePayload, businessUnitId?: number) => {
+  const response = await api.post('/roles', payload, { params: { businessUnitId } });
   return response.data;
 };
 

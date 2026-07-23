@@ -1,28 +1,58 @@
 import { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Tree } from 'antd';
-import type { DataNode } from 'antd/es/tree';
+import { Form, Input, Button, Card, message, Typography, Checkbox } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getRole, createRole, updateRole } from '../api/roles';
-import { getModuleTree, type ModuleNode } from '../api/modules';
+import { getPermissionTree, type PermissionNode as PermissionNodeType } from '../api/modules';
+import { useBusinessUnit } from '../context/BusinessUnitContext';
 
 const { Title } = Typography;
 
-function buildTreeData(modules: ModuleNode[]): DataNode[] {
-  return modules.map((mod) => ({
-    key: mod.permissions?.[0]?.id ?? `module-${mod.id}`,
-    title: mod.name,
-    children: mod.children && mod.children.length > 0 ? buildTreeData(mod.children) : undefined,
-  }));
+function collectPermissionIds(node: PermissionNodeType): number[] {
+  const ids: number[] = [node.id];
+  node.children?.forEach((child) => ids.push(...collectPermissionIds(child)));
+  return ids;
+}
+
+function PermissionTreeNode({
+  node,
+  depth,
+  checkedKeys,
+  onToggle,
+}: {
+  node: PermissionNodeType;
+  depth: number;
+  checkedKeys: number[];
+  onToggle: (node: PermissionNodeType, checked: boolean) => void;
+}) {
+  const isChecked = checkedKeys.includes(node.id);
+
+  return (
+    <div style={{ marginLeft: depth * 24, marginBottom: 8 }}>
+      <Checkbox checked={isChecked} onChange={(e) => onToggle(node, e.target.checked)}>
+        {node.name}
+      </Checkbox>
+      {node.children?.map((child) => (
+        <PermissionTreeNode
+          key={child.id}
+          node={child}
+          depth={depth + 1}
+          checkedKeys={checkedKeys}
+          onToggle={onToggle}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default function RoleForm() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   const navigate = useNavigate();
+  const { selectedBusinessUnit } = useBusinessUnit();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [treeData, setTreeData] = useState<DataNode[]>([]);
-  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+  const [moduleTree, setModuleTree] = useState<PermissionNodeType[]>([]);
+  const [checkedKeys, setCheckedKeys] = useState<number[]>([]);
 
   useEffect(() => {
     loadModules();
@@ -33,10 +63,10 @@ export default function RoleForm() {
 
   const loadModules = async () => {
     try {
-      const modules = await getModuleTree();
-      setTreeData(buildTreeData(modules));
+      const tree = await getPermissionTree();
+      setModuleTree(tree);
     } catch (error) {
-      message.error('Failed to load modules');
+      message.error('Failed to load permissions');
     }
   };
 
@@ -50,18 +80,23 @@ export default function RoleForm() {
     }
   };
 
-  const onFinish = async (values: { name: string; description?: string }) => {
-    const permissionIds = checkedKeys
-      .filter((key) => typeof key === 'number')
-      .map((key) => Number(key));
+  const handleToggle = (node: PermissionNodeType, checked: boolean) => {
+    const ids = collectPermissionIds(node);
+    setCheckedKeys((prev) => {
+      const set = new Set(prev);
+      ids.forEach((permId) => (checked ? set.add(permId) : set.delete(permId)));
+      return Array.from(set);
+    });
+  };
 
+  const onFinish = async (values: { name: string; description?: string }) => {
     setLoading(true);
     try {
       if (isEditMode) {
-        await updateRole(Number(id), { ...values, permissionIds });
+        await updateRole(Number(id), { ...values, permissionIds: checkedKeys });
         message.success('Role updated');
       } else {
-        await createRole({ ...values, permissionIds });
+        await createRole({ ...values, permissionIds: checkedKeys }, selectedBusinessUnit?.id);
         message.success('Role created');
       }
       navigate('/staff/roles');
@@ -97,11 +132,7 @@ export default function RoleForm() {
       </div>
 
       <Card title="Role Details" size="small" style={{ marginBottom: 16 }}>
-        <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: 'Role name is required' }]}
-        >
+        <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Role name is required' }]}>
           <Input placeholder="e.g. Manager" />
         </Form.Item>
         <Form.Item label="Description" name="description">
@@ -110,13 +141,15 @@ export default function RoleForm() {
       </Card>
 
       <Card title="Permissions" size="small">
-        <Tree
-          checkable
-          checkedKeys={checkedKeys}
-          onCheck={(keys) => setCheckedKeys(keys as React.Key[])}
-          treeData={treeData}
-          defaultExpandAll
-        />
+        {moduleTree.map((node) => (
+          <PermissionTreeNode
+            key={node.id}
+            node={node}
+            depth={0}
+            checkedKeys={checkedKeys}
+            onToggle={handleToggle}
+          />
+        ))}
       </Card>
     </Form>
   );

@@ -1,20 +1,28 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, message, Typography, Tag } from 'antd';
+import { Table, Button, Popconfirm, message, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getRoles, deleteRole, type Role } from '../api/roles';
+import { useAuth } from '../context/AuthContext';
+import { useBusinessUnit } from '../context/BusinessUnitContext';
 
 const { Title } = Typography;
 
 export default function Roles() {
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
   const [data, setData] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
+  const { selectedBusinessUnit } = useBusinessUnit();
 
   const fetchData = async () => {
+    if (!selectedBusinessUnit) {
+      setData([]);
+      return;
+    }
     setLoading(true);
     try {
-      const roles = await getRoles();
+      const roles = await getRoles(selectedBusinessUnit.id);
       setData(roles);
     } catch (error) {
       message.error('Failed to load roles');
@@ -25,15 +33,15 @@ export default function Roles() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedBusinessUnit]);
 
   const handleDelete = async (id: number) => {
     try {
       await deleteRole(id);
       message.success('Role deleted');
       fetchData();
-    } catch (error) {
-      message.error('Failed to delete role');
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Failed to delete role');
     }
   };
 
@@ -63,22 +71,31 @@ export default function Roles() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: unknown, record: Role) => (
-        <Popconfirm title="Delete this role?" onConfirm={() => handleDelete(record.id)} okText="Yes" cancelText="No">
-          <Button danger icon={<DeleteOutlined />} size="small">
-            Delete
-          </Button>
-        </Popconfirm>
-      ),
+      render: (_: unknown, record: Role) =>
+        hasPermission('staff.roles.delete') ? (
+          <Popconfirm
+            title="Delete this role?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger icon={<DeleteOutlined />} size="small">
+              Delete
+            </Button>
+          </Popconfirm>
+        ) : null,
     },
   ];
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0 }}>Roles ({data.length})</Title>        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/staff/roles/new')}>
-          Add New
-        </Button>
+        <Title level={3} style={{ margin: 0 }}>Roles ({data.length})</Title>
+        {hasPermission('staff.roles.add') && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/staff/roles/new')}>
+            Add New
+          </Button>
+        )}
       </div>
       <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
     </div>

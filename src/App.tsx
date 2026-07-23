@@ -11,6 +11,8 @@ import EditProfile from './pages/EditProfile';
 import AppLayout from './components/AppLayout';
 import { Spin } from 'antd';
 import RoleForm from './pages/RoleForm';
+import PermissionRoute from './components/PermissionRoute';
+import UserForm from './pages/UserForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -56,10 +58,54 @@ function AppRoutes() {
           path="business-units/:id/edit"
           element={isSuperadmin ? <BusinessUnitForm /> : <Navigate to="/" />}
         />
-        <Route path="staff/users" element={<Users />} />
-        <Route path="staff/roles" element={<Roles />} />
-        <Route path="staff/roles/new" element={<RoleForm />} />
-        <Route path="staff/roles/:id/edit" element={<RoleForm />} />
+        <Route
+          path="staff/users"
+          element={
+            <PermissionRoute permission="staff.users.view">
+              <Users />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="staff/users/new"
+          element={
+            <PermissionRoute permission="staff.users.add">
+              <UserForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="staff/users/:id/edit"
+          element={
+            <PermissionRoute permission="staff.users.edit">
+              <UserForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="staff/roles"
+          element={
+            <PermissionRoute permission="staff.roles.view">
+              <Roles />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="staff/roles/new"
+          element={
+            <PermissionRoute permission="staff.roles.add">
+              <RoleForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="staff/roles/:id/edit"
+          element={
+            <PermissionRoute permission="staff.roles.edit">
+              <RoleForm />
+            </PermissionRoute>
+          }
+        />
         <Route path="profile" element={<EditProfile />} />
       </Route>
     </Routes>

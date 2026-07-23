@@ -1,15 +1,14 @@
 import api from './axios';
 
-export interface ModuleNode {
+export interface PermissionNode {
   id: number;
   name: string;
-  slug: string;
-  parentId: number | null;
-  children?: ModuleNode[];
-  permissions?: { id: number; name: string }[];
+  permission: string;
+  parent: string | null;
+  children?: PermissionNode[];
 }
 
-export const getModuleTree = async (): Promise<ModuleNode[]> => {
-  const response = await api.get('/modules');
-  return response.data.modules;
+export const getPermissionTree = async (): Promise<PermissionNode[]> => {
+  const response = await api.get('/permissions/tree');
+  return response.data.permissions;
 };
