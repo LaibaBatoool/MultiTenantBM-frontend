@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, Menu, Dropdown, Avatar, theme, Button } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, theme, Button, Tooltip } from 'antd';
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -16,12 +16,40 @@ import { useAuth } from '../context/AuthContext';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import type { MenuProps } from 'antd';
+import { ShopOutlined } from '@ant-design/icons';
+import {
+  TeamOutlined as VendorIcon,
+  ShoppingOutlined,
+  ToolOutlined,
+  SolutionOutlined,
+  SmileOutlined,
+} from '@ant-design/icons';
+import {
+  ProjectOutlined,
+  IdcardOutlined,
+  LaptopOutlined,
+  TagsOutlined,
+  BankOutlined,
+  DollarOutlined,
+  WalletOutlined,
+  FundOutlined,
+  BarChartOutlined,
+  PieChartOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
+
+const API_BASE = 'http://192.168.1.157:3000';
 
 const { Header, Sider, Content } = Layout;
 
+const withTooltip = (text: string) => (
+  <Tooltip title={text} placement="right">
+    <span>{text}</span>
+  </Tooltip>
+);
+
 export default function AppLayout() {
-  const { hasPermission } = useAuth();
-  const { logout, currentUser } = useAuth();
+  const { hasPermission, logout, currentUser } = useAuth();
   const { selectedBusinessUnit, isSuperadmin, clearSelectedBusinessUnit } = useBusinessUnit();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,49 +61,7 @@ export default function AppLayout() {
     navigate('/login');
   };
 
-  const menuItems = selectedBusinessUnit
-    ? [
-      ...(isSuperadmin
-        ? [{ key: '/business-units', icon: <ApartmentOutlined />, label: 'Business Units' }]
-        : []),
-      { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
-      ...(hasPermission('staff.users.view') || hasPermission('staff.roles.view')
-        ? [
-          {
-            key: 'staff-group',
-            icon: <TeamOutlined />,
-            label: 'Staff',
-            children: [
-              ...(hasPermission('staff.users.view')
-                ? [{ key: '/staff/users', icon: <UsergroupAddOutlined />, label: 'Users' }]
-                : []),
-              ...(hasPermission('staff.roles.view')
-                ? [{ key: '/staff/roles', icon: <SafetyCertificateOutlined />, label: 'Roles' }]
-                : []),
-            ],
-          },
-        ]
-        : []),
-    ]
-    : [{ key: '/business-units', icon: <ApartmentOutlined />, label: 'Business Units' }];
   const dropdownItems: MenuProps['items'] = [
-    {
-      key: 'user-info',
-      label: (
-        <div style={{ padding: '4px 0' }}>
-          <div style={{ fontWeight: 600 }}>{currentUser?.fullName || 'Loading...'}</div>
-          <div style={{ fontSize: 12, color: '#888' }}>{currentUser?.email || ''}</div>
-        </div>
-      ),
-      disabled: true,
-    },
-    { type: 'divider' },
-    {
-      key: 'edit-profile',
-      icon: <EditOutlined />,
-      label: 'Edit Profile',
-      onClick: () => navigate('/profile'),
-    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
@@ -84,9 +70,111 @@ export default function AppLayout() {
     },
   ];
 
+  const menuItems = selectedBusinessUnit
+    ? [
+      ...(isSuperadmin
+        ? [{ key: '/business-units', icon: <ApartmentOutlined />, label: withTooltip('Business Units') }]
+        : []),
+
+      { key: '/', icon: <DashboardOutlined />, label: withTooltip('Dashboard') },
+
+      {
+        key: 'finance-group',
+        icon: <DollarOutlined />,
+        label: withTooltip('Finance'),
+        children: [
+          { key: '/finance/expenses', icon: <WalletOutlined />, label: withTooltip('Expenses') },
+          { key: '/finance/opening-balances', icon: <FundOutlined />, label: withTooltip('Opening Balances') },
+          { key: '/finance/capital-contributions', icon: <DollarOutlined />, label: withTooltip('Capital Contributions') },
+        ],
+      },
+
+      {
+        key: 'reports-group',
+        icon: <BarChartOutlined />,
+        label: withTooltip('Reports'),
+        children: [
+          { key: '/reports/expense-report', icon: <PieChartOutlined />, label: withTooltip('Expense Report') },
+          { key: '/reports/project-profitability', icon: <FundOutlined />, label: withTooltip('Project Profitability') },
+          { key: '/reports/general-ledger', icon: <FileTextOutlined />, label: withTooltip('General Ledger') },
+        ],
+      },
+
+      ...(hasPermission('staff.users.view') || hasPermission('staff.roles.view')
+        ? [
+          {
+            key: 'staff-group',
+            icon: <TeamOutlined />,
+            label: withTooltip('Staff'),
+            children: [
+              ...(hasPermission('staff.users.view')
+                ? [{ key: '/staff/users', icon: <UsergroupAddOutlined />, label: withTooltip('Users') }]
+                : []),
+              ...(hasPermission('staff.roles.view')
+                ? [{ key: '/staff/roles', icon: <SafetyCertificateOutlined />, label: withTooltip('Roles') }]
+                : []),
+            ],
+          },
+        ]
+        : []),
+
+      ...(hasPermission('master-data.vendor.view') ||
+        hasPermission('master-data.supplier.view') ||
+        hasPermission('master-data.contractor.view') ||
+        hasPermission('master-data.consultant.view') ||
+        hasPermission('master-data.customer.view') ||
+        hasPermission('master-data.projects.view') ||
+        hasPermission('master-data.employees.view') ||
+        hasPermission('master-data.assets.view') ||
+        hasPermission('master-data.expense-types.view') ||
+        hasPermission('master-data.bank-accounts.view')
+        ? [
+          {
+            key: 'master-data-group',
+            icon: <ShopOutlined />,
+            label: withTooltip('Master Data'),
+            children: [
+              ...(hasPermission('master-data.vendor.view')
+                ? [{ key: '/master-data/vendor', icon: <VendorIcon />, label: withTooltip('Vendor') }]
+                : []),
+
+              ...(hasPermission('master-data.supplier.view')
+                ? [{ key: '/master-data/supplier', icon: <ShoppingOutlined />, label: withTooltip('Supplier') }]
+                : []),
+
+              ...(hasPermission('master-data.contractor.view')
+                ? [{ key: '/master-data/contractor', icon: <ToolOutlined />, label: withTooltip('Contractor') }]
+                : []),
+
+              ...(hasPermission('master-data.consultant.view')
+                ? [{ key: '/master-data/consultant', icon: <SolutionOutlined />, label: withTooltip('Consultant') }]
+                : []),
+
+              ...(hasPermission('master-data.customer.view')
+                ? [{ key: '/master-data/customer', icon: <SmileOutlined />, label: withTooltip('Customer') }]
+                : []),
+
+              { key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') },
+              { key: '/master-data/employees', icon: <IdcardOutlined />, label: withTooltip('Employees') },
+              ...(hasPermission('master-data.assets.view')
+                ? [{ key: '/master-data/assets', icon: <LaptopOutlined />, label: withTooltip('Assets') }]
+                : []),
+              ...(hasPermission('master-data.expense-types.view')
+                ? [{ key: '/master-data/expense-types', icon: <TagsOutlined />, label: withTooltip('Expense Types') }]
+                : []),
+              ...(hasPermission('master-data.bank-accounts.view')
+                ? [{ key: '/master-data/bank-accounts', icon: <BankOutlined />, label: withTooltip('Bank Accounts') }]
+                : []),
+            ],
+          },
+        ]
+        : []),
+    ]
+    : [{ key: '/business-units', icon: <ApartmentOutlined />, label: withTooltip('Business Units') }];
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} width={260} collapsedWidth={80}>
         <div style={{ color: 'white', textAlign: 'center', padding: '16px', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden' }}>
           {collapsed ? 'MTBM' : selectedBusinessUnit ? selectedBusinessUnit.name : 'MultiTenantBM'}
         </div>
@@ -94,10 +182,9 @@ export default function AppLayout() {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
-          defaultOpenKeys={['staff-group']}
-          items={menuItems}
+          defaultOpenKeys={['staff-group', 'master-data-group', 'finance-group', 'reports-group']} items={menuItems}
           onClick={({ key }) => {
-            if (key === 'staff-group') return;
+            if (key === 'staff-group' || key === 'master-data-group' || key === 'finance-group' || key === 'reports-group') return;
             if (key === '/business-units') {
               clearSelectedBusinessUnit();
             }
@@ -114,7 +201,11 @@ export default function AppLayout() {
             style={{ fontSize: 18 }}
           />
           <Dropdown menu={{ items: dropdownItems }} trigger={['click']} placement="bottomRight">
-            <Avatar style={{ cursor: 'pointer', backgroundColor: '#8c8c8c' }} icon={<UserOutlined />} />
+            <Avatar
+              style={{ cursor: 'pointer', backgroundColor: '#8c8c8c' }}
+              src={currentUser?.profilePicture?.url ? `${API_BASE}${currentUser.profilePicture.url}` : undefined}
+              icon={!currentUser?.profilePicture?.url ? <UserOutlined /> : undefined}
+            />
           </Dropdown>
         </Header>
         <Content style={{ margin: '24px', padding: '24px', background: colorBgContainer }}>

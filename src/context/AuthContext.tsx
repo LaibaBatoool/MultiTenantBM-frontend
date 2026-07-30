@@ -9,6 +9,7 @@ interface AuthContextType {
   hasPermission: (slug: string) => boolean;
   login: (token: string) => void;
   logout: () => void;
+  refreshCurrentUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshCurrentUser = async () => {
+    await fetchCurrentUser();
+  };
+
   const login = (token: string) => {
     localStorage.setItem('token', token);
     setIsAuthenticated(true);
@@ -59,16 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, permissions, hasPermission, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, permissions, hasPermission, login, logout, refreshCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-      export function useAuth() {
+export function useAuth() {
   const context = useContext(AuthContext);
-      if (!context) {
+  if (!context) {
     throw new Error('useAuth must be used within AuthProvider');
   }
-      return context;
+  return context;
 }

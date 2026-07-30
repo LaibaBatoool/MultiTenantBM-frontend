@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getRole, createRole, updateRole } from '../api/roles';
 import { getPermissionTree, type PermissionNode as PermissionNodeType } from '../api/modules';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { CaretDownFilled, CaretRightFilled, DownOutlined, RightOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -24,22 +25,52 @@ function PermissionTreeNode({
   checkedKeys: number[];
   onToggle: (node: PermissionNodeType, checked: boolean) => void;
 }) {
+  const [expanded, setExpanded] = useState(true);
+
   const isChecked = checkedKeys.includes(node.id);
+  const hasChildren = !!node.children?.length;
 
   return (
     <div style={{ marginLeft: depth * 24, marginBottom: 8 }}>
-      <Checkbox checked={isChecked} onChange={(e) => onToggle(node, e.target.checked)}>
-        {node.name}
-      </Checkbox>
-      {node.children?.map((child) => (
-        <PermissionTreeNode
-          key={child.id}
-          node={child}
-          depth={depth + 1}
-          checkedKeys={checkedKeys}
-          onToggle={onToggle}
-        />
-      ))}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        {hasChildren ? (
+          <span
+            onClick={() => setExpanded(!expanded)}
+            style={{ cursor: 'pointer', width: 14 }}
+          >
+            {expanded ? (
+              <CaretDownFilled style={{ fontSize: 12 }} />
+            ) : (
+              <CaretRightFilled style={{ fontSize: 12 }} />
+            )}          </span>
+        ) : (
+          <span style={{ width: 14 }} />
+        )}
+
+        <Checkbox
+          checked={isChecked}
+          onChange={(e) => onToggle(node, e.target.checked)}
+        >
+          {node.name}
+        </Checkbox>
+      </div>
+
+      {expanded &&
+        node.children?.map((child) => (
+          <PermissionTreeNode
+            key={child.id}
+            node={child}
+            depth={depth + 1}
+            checkedKeys={checkedKeys}
+            onToggle={onToggle}
+          />
+        ))}
     </div>
   );
 }
@@ -141,15 +172,17 @@ export default function RoleForm() {
       </Card>
 
       <Card title="Permissions" size="small">
-        {moduleTree.map((node) => (
-          <PermissionTreeNode
-            key={node.id}
-            node={node}
-            depth={0}
-            checkedKeys={checkedKeys}
-            onToggle={handleToggle}
-          />
-        ))}
+        {moduleTree
+          .filter((node) => node.name !== 'Company Types')
+          .map((node) => (
+            <PermissionTreeNode
+              key={node.id}
+              node={node}
+              depth={0}
+              checkedKeys={checkedKeys}
+              onToggle={handleToggle}
+            />
+          ))}
       </Card>
     </Form>
   );

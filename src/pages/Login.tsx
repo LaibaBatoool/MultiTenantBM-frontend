@@ -17,8 +17,9 @@ export default function Login() {
       login(response.data.token);
       message.success('Login successful');
       navigate('/');
-    } catch (error) {
-      message.error('Invalid username or password');
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message;
+      message.error(backendMessage || 'Invalid username or password');
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { getStaffOne, createStaff, updateStaff } from '../api/staff';
 import { getRoles, getUserRoles, assignRolesToUser, type Role } from '../api/roles';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
+import FileUploadField from '../components/FileUploadField';
 
 const { Title } = Typography;
 
@@ -31,7 +32,14 @@ export default function UserForm() {
     const loadUser = async () => {
         try {
             const staff = await getStaffOne(Number(id), selectedBusinessUnit?.id);
-            form.setFieldsValue({ fullName: staff.fullName, username: staff.username, email: staff.email });
+            form.setFieldsValue({
+                fullName: staff.fullName,
+                username: staff.username,
+                email: staff.email,
+                profilePicture: staff.profilePicture
+                    ? { id: staff.profilePicture.id, url: staff.profilePicture.url, originalName: staff.profilePicture.originalName }
+                    : null,
+            });
             const roles = await getUserRoles(Number(id));
             setSelectedRoleIds(roles.map((r) => r.id));
         } catch (error) {
@@ -40,15 +48,25 @@ export default function UserForm() {
     };
 
     const onFinish = async (values: any) => {
-        const { confirmPassword, ...rest } = values;
+        const { confirmPassword, profilePicture, ...rest } = values;
         setLoading(true);
         try {
             let userId = Number(id);
             if (isEditMode) {
-                await updateStaff(userId, { fullName: rest.fullName, email: rest.email }, selectedBusinessUnit?.id);
+                await updateStaff(
+                    userId,
+                    { fullName: rest.fullName, email: rest.email, profilePictureId: profilePicture?.id },
+                    selectedBusinessUnit?.id,
+                );
             } else {
                 const result = await createStaff(
-                    { fullName: rest.fullName, username: rest.username, email: rest.email, password: rest.password },
+                    {
+                        fullName: rest.fullName,
+                        username: rest.username,
+                        email: rest.email,
+                        password: rest.password,
+                        profilePictureId: profilePicture?.id,
+                    },
                     selectedBusinessUnit?.id,
                 );
                 userId = result?.staff?.id;
@@ -100,6 +118,9 @@ export default function UserForm() {
                             rules={[{ required: true, message: 'Full name is required' }]}
                         >
                             <Input placeholder="e.g. Sara Khan" />
+                        </Form.Item>
+                        <Form.Item label="Profile Picture" name="profilePicture">
+                            <FileUploadField variant="image" label="Upload Profile Picture" />
                         </Form.Item>
                         <Form.Item
                             label="Email"
