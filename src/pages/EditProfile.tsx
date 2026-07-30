@@ -14,12 +14,10 @@ export default function EditProfile() {
   useEffect(() => {
     if (currentUser) {
       form.setFieldsValue({
-        fullName: currentUser.fullName,
+        fullName: currentUser.name,
         username: currentUser.username,
         email: currentUser.email,
-        profilePicture: currentUser.profilePicture
-          ? { id: currentUser.profilePicture.id, url: currentUser.profilePicture.url, originalName: currentUser.profilePicture.originalName }
-          : null,
+        profilePicture: currentUser.profilePic ? { url: currentUser.profilePic } : null,
       });
     }
   }, [currentUser]);

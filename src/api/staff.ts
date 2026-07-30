@@ -11,9 +11,14 @@ export interface Staff {
   profilePicture?: { id: number; url: string; originalName: string } | null;
 }
 
-export const getStaff = async (businessUnitId?: number, status: 'active' | 'inactive' = 'active'): Promise<Staff[]> => {
-  const response = await api.get('/staff', { params: { businessUnitId, status } });
-  return response.data.staff;
+export const getStaff = async (
+  businessUnitId?: number,
+  status: 'active' | 'inactive' = 'active',
+  page = 1,
+  pageSize = 10,
+): Promise<{ staff: Staff[]; total: number }> => {
+  const response = await api.get('/staff', { params: { businessUnitId, status, page, pageSize } });
+  return { staff: response.data.staff, total: response.data.total };
 };
 
 export const getStaffOne = async (id: number, businessUnitId?: number): Promise<Staff> => {

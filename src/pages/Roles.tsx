@@ -16,6 +16,9 @@ export default function Roles() {
   const [data, setData] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const { selectedBusinessUnit } = useBusinessUnit();
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const fetchData = async () => {
     if (!selectedBusinessUnit) {
@@ -24,8 +27,10 @@ export default function Roles() {
     }
     setLoading(true);
     try {
-      const roles = await getRoles(selectedBusinessUnit.id);
-      setData(roles);
+      const result = await getRoles(selectedBusinessUnit.id, page, pageSize);
+      // getRoles returns an array of Role; update state accordingly
+      setData(result);
+      setTotal(result.length);
     } catch (error) {
       message.error('Failed to load roles');
     } finally {
@@ -35,7 +40,8 @@ export default function Roles() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedBusinessUnit]);
+  }, [selectedBusinessUnit, page, pageSize]);
+
 
   const handleDelete = async (id: number) => {
     try {
@@ -120,7 +126,20 @@ export default function Roles() {
           </Button>
         )}
       </div>
-      <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
-    </div>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          current: page,
+          pageSize,
+          total,
+          onChange: (p, ps) => {
+            setPage(p);
+            setPageSize(ps);
+          },
+        }}
+      />    </div>
   );
 }

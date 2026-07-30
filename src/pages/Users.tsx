@@ -18,6 +18,10 @@ export default function Users() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
 
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const fetchData = async () => {
     if (!selectedBusinessUnit) {
       setData([]);
@@ -25,8 +29,9 @@ export default function Users() {
     }
     setLoading(true);
     try {
-      const staff = await getStaff(selectedBusinessUnit.id, status);
-      setData(staff);
+      const result = await getStaff(selectedBusinessUnit.id, status, page, pageSize);
+      setData(result.staff);
+      setTotal(result.total);
     } catch (error) {
       message.error('Failed to load users');
     } finally {
@@ -36,7 +41,7 @@ export default function Users() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedBusinessUnit, status]);
+  }, [selectedBusinessUnit, status, page, pageSize]);
 
   const handleDeactivate = async (id: number) => {
     try {
@@ -133,7 +138,20 @@ export default function Users() {
         />
       </Space>
 
-      <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
-    </div>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          current: page,
+          pageSize,
+          total,
+          onChange: (p, ps) => {
+            setPage(p);
+            setPageSize(ps);
+          },
+        }}
+      />    </div>
   );
 }

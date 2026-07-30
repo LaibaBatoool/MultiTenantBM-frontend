@@ -1,18 +1,27 @@
 import api from './axios';
 
-export interface CurrentUser {
+export interface UserInfo {
   id: number;
-  fullName: string;
   username: string;
+  name: string;
   email: string;
+  profilePic: string;
   businessUnitId: number | null;
-  profilePictureId: number | null;
-  profilePicture?: { id: number; url: string; originalName: string } | null;
 }
 
-export const getCurrentUser = async (): Promise<CurrentUser> => {
-  const response = await api.get('/auth/me');
-  return response.data.user;
+export interface UserContextResponse {
+  user: UserInfo;
+  permissions: string[];
+  isSuperAdmin: boolean;
+  isAgencyAdmin: boolean;
+  isAgencyUser: boolean;
+  isCompanyAdmin: boolean;
+  token: string;
+}
+
+export const getUserContext = async (): Promise<UserContextResponse> => {
+  const response = await api.get('/auth/user-context');
+  return response.data;
 };
 
 export const updateMyProfile = async (payload: {

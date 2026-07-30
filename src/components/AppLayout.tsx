@@ -63,6 +63,29 @@ export default function AppLayout() {
 
   const dropdownItems: MenuProps['items'] = [
     {
+      key: 'name',
+      label: (
+        <div>
+          <strong>{currentUser?.name || 'Loading...'}</strong>
+        </div>
+      ),
+      disabled: true,
+    },
+    {
+      key: 'email',
+      label: currentUser?.email || '',
+      disabled: true,
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'edit-profile',
+      icon: <EditOutlined />,
+      label: 'Edit Profile',
+      onClick: () => navigate('/profile'),
+    },
+    {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Logout',
@@ -203,8 +226,8 @@ export default function AppLayout() {
           <Dropdown menu={{ items: dropdownItems }} trigger={['click']} placement="bottomRight">
             <Avatar
               style={{ cursor: 'pointer', backgroundColor: '#8c8c8c' }}
-              src={currentUser?.profilePicture?.url ? `${API_BASE}${currentUser.profilePicture.url}` : undefined}
-              icon={!currentUser?.profilePicture?.url ? <UserOutlined /> : undefined}
+              src={currentUser?.profilePic ? `${API_BASE}${currentUser.profilePic}` : undefined}
+              icon={currentUser?.profilePic ? undefined : <UserOutlined />}
             />
           </Dropdown>
         </Header>
