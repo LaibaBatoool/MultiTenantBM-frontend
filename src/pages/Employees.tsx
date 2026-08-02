@@ -8,7 +8,9 @@ import { useAuth } from '../context/AuthContext';
 import { Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.1.157:3000';
+const API_BASE = 'http://192.168.10.14:3000';
+
 const { Title } = Typography;
 
 export default function Employees() {

@@ -38,7 +38,8 @@ import {
   FileTextOutlined,
 } from '@ant-design/icons';
 
-const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.1.157:3000';
+const API_BASE = 'http://192.168.10.14:3000';
 
 const { Header, Sider, Content } = Layout;
 
@@ -176,9 +177,14 @@ export default function AppLayout() {
               ...(hasPermission('master-data.customer.view')
                 ? [{ key: '/master-data/customer', icon: <SmileOutlined />, label: withTooltip('Customer') }]
                 : []),
+                { key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') },
 
-              { key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') },
-              { key: '/master-data/employees', icon: <IdcardOutlined />, label: withTooltip('Employees') },
+              // ...(hasPermission('master-data.projects.view')
+              //   ? [{ key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') }]
+              //   : []),
+              ...(hasPermission('master-data.employees.view')
+                ? [{ key: '/master-data/employees', icon: <IdcardOutlined />, label: withTooltip('Employees') }]
+                : []),
               ...(hasPermission('master-data.assets.view')
                 ? [{ key: '/master-data/assets', icon: <LaptopOutlined />, label: withTooltip('Assets') }]
                 : []),

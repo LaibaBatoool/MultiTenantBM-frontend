@@ -8,7 +8,9 @@ import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
 import { Avatar } from 'antd';
 
-const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.1.157:3000';
+const API_BASE = 'http://192.168.10.14:3000';
+
 const { Title } = Typography;
 
 const TYPE_LABELS: Record<string, string> = {
