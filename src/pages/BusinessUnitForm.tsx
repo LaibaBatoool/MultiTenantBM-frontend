@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Row, Col } from 'antd';
+import { Form, Input, Button, Card, message, Typography, Row, Col, Select } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getBusinessUnit, createBusinessUnit, updateBusinessUnit } from '../api/businessUnits';
 import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
@@ -106,6 +106,26 @@ export default function BusinessUnitForm() {
             </Form.Item>
             <Form.Item label="Logo" name="logo">
               <FileUploadField ref={logoFieldRef} variant="image" label="Upload Logo" />
+            </Form.Item>
+            <Form.Item
+              label="Fiscal Year Start Month"
+              name="fiscalYearStartMonth"
+              tooltip="Business ka financial year kis mahine se shuru hota hai"
+            >
+              <Select placeholder="e.g. January" allowClear>
+                <Select.Option value={1}>January</Select.Option>
+                <Select.Option value={2}>February</Select.Option>
+                <Select.Option value={3}>March</Select.Option>
+                <Select.Option value={4}>April</Select.Option>
+                <Select.Option value={5}>May</Select.Option>
+                <Select.Option value={6}>June</Select.Option>
+                <Select.Option value={7}>July</Select.Option>
+                <Select.Option value={8}>August</Select.Option>
+                <Select.Option value={9}>September</Select.Option>
+                <Select.Option value={10}>October</Select.Option>
+                <Select.Option value={11}>November</Select.Option>
+                <Select.Option value={12}>December</Select.Option>
+              </Select>
             </Form.Item>
           </Card>
         </Col>
