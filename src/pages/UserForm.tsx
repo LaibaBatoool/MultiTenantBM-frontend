@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Form, Input, Button, Card, message, Typography, Row, Col, Select } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getStaffOne, createStaff, updateStaff } from '../api/staff';
 import { getRoles, getUserRoles, assignRolesToUser, type Role } from '../api/roles';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
-import FileUploadField from '../components/FileUploadField';
+import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
 
 const { Title } = Typography;
 
@@ -16,6 +16,7 @@ export default function UserForm() {
     const { selectedBusinessUnit } = useBusinessUnit();
     const { hasPermission } = useAuth();
     const [form] = Form.useForm();
+    const profilePicRef = useRef<FileUploadFieldHandle>(null);
     const [loading, setLoading] = useState(false);
     const [allRoles, setAllRoles] = useState<Role[]>([]);
     const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([]);
@@ -37,8 +38,8 @@ export default function UserForm() {
                 username: staff.username,
                 email: staff.email,
                 profilePicture: staff.profilePicture
-                    ? { id: staff.profilePicture.id, url: staff.profilePicture.url, originalName: staff.profilePicture.originalName }
-                    : null,
+                ? { url: staff.profilePicture, originalName: staff.profilePicture.split('/').pop() }
+                : null,
             });
             const roles = await getUserRoles(Number(id));
             setSelectedRoleIds(roles.map((r) => r.id));
@@ -55,7 +56,7 @@ export default function UserForm() {
             if (isEditMode) {
                 await updateStaff(
                     userId,
-                    { fullName: rest.fullName, email: rest.email, profilePictureId: profilePicture?.id },
+                    { fullName: rest.fullName, email: rest.email, profilePicture: profilePicture?.url, },
                     selectedBusinessUnit?.id,
                 );
             } else {
@@ -65,7 +66,7 @@ export default function UserForm() {
                         username: rest.username,
                         email: rest.email,
                         password: rest.password,
-                        profilePictureId: profilePicture?.id,
+                        profilePicture: profilePicture?.url,
                     },
                     selectedBusinessUnit?.id,
                 );
@@ -83,6 +84,11 @@ export default function UserForm() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCancel = () => {
+        profilePicRef.current?.discardUnsavedUpload();
+        navigate('/staff/users');
     };
 
     return (
@@ -105,7 +111,7 @@ export default function UserForm() {
                     <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: 8 }}>
                         Save
                     </Button>
-                    <Button onClick={() => navigate('/staff/users')}>Cancel</Button>
+                    <Button onClick={handleCancel}>Cancel</Button>
                 </div>
             </div>
 
@@ -120,7 +126,7 @@ export default function UserForm() {
                             <Input placeholder="e.g. Sara Khan" />
                         </Form.Item>
                         <Form.Item label="Profile Picture" name="profilePicture">
-                            <FileUploadField variant="image" label="Upload Profile Picture" />
+                            <FileUploadField ref={profilePicRef} variant="image" label="Upload Profile Picture" />
                         </Form.Item>
                         <Form.Item
                             label="Email"

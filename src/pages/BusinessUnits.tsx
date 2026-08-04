@@ -14,6 +14,8 @@ import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
 
 const { Title } = Typography;
+const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.10.14:3000';
 
 export default function BusinessUnits() {
   const navigate = useNavigate();
@@ -168,8 +170,12 @@ export default function BusinessUnits() {
               ]}
             >
               <Card.Meta
-                avatar={<Avatar icon={<ApartmentOutlined />} />}
-                title={bu.name}
+                avatar={
+                  <Avatar
+                    src={bu.logo ? `${API_BASE}${bu.logo}` : undefined}
+                    icon={!bu.logo ? <ApartmentOutlined /> : undefined}
+                  />
+                } title={bu.name}
               />
             </Card>
           </Col>

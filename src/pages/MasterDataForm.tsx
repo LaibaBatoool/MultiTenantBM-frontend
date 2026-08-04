@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Form, Input, Button, Card, message, Typography, Row, Col } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getCompanyByType, createCompanyOfType, updateCompanyOfType } from '../api/companies';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
-import FileUploadField from '../components/FileUploadField';
+import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
 
 const { Title } = Typography;
 
@@ -22,6 +22,7 @@ export default function MasterDataForm() {
   const { selectedBusinessUnit } = useBusinessUnit();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const logoFieldRef = useRef<FileUploadFieldHandle>(null);
 
   const label = TYPE_LABELS[type || ''] || type;
 
@@ -40,7 +41,7 @@ export default function MasterDataForm() {
         email: company.email,
         address: company.address,
         website: company.website,
-        logo: company.logo ? { id: company.logo.id, url: company.logo.url } : null,
+        logo: company.logo ? { url: company.logo } : null,
         adminFullName: company.admin?.fullName,
         adminUsername: company.admin?.username,
         adminEmail: company.admin?.email,
@@ -56,12 +57,12 @@ export default function MasterDataForm() {
     setLoading(true);
     try {
       if (isEditMode) {
-        const payload: any = { ...rest, logoId: logo?.id };
+        const payload: any = { ...rest, logo: logo?.url };
         if (!payload.adminPassword) delete payload.adminPassword;
         await updateCompanyOfType(type, Number(id), payload);
         message.success(`${label} updated`);
       } else {
-        await createCompanyOfType(type, { ...rest, businessUnitId: selectedBusinessUnit?.id, logoId: logo?.id });
+        await createCompanyOfType(type, { ...rest, businessUnitId: selectedBusinessUnit?.id, logo: logo?.url });
         message.success(`${label} created`);
       }
       navigate(`/master-data/${type}`);
@@ -70,6 +71,11 @@ export default function MasterDataForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    logoFieldRef.current?.discardUnsavedUpload();
+    navigate(`/master-data/${type}`);
   };
 
   return (
@@ -92,7 +98,7 @@ export default function MasterDataForm() {
           <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: 8 }}>
             Save
           </Button>
-          <Button onClick={() => navigate(`/master-data/${type}`)}>Cancel</Button>
+          <Button onClick={handleCancel}>Cancel</Button>
         </div>
       </div>
 
@@ -115,7 +121,7 @@ export default function MasterDataForm() {
               <Input />
             </Form.Item>
             <Form.Item label="Logo" name="logo">
-              <FileUploadField variant="image" label="Upload Logo" />
+              <FileUploadField ref={logoFieldRef} variant="image" label="Upload Logo" />
             </Form.Item>
           </Card>
         </Col>
@@ -128,7 +134,6 @@ export default function MasterDataForm() {
               rules={[{ required: true, message: 'Username is required' }]}
             >
               <Input/>
-              {/* <Input disabled={isEditMode}  */}
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>

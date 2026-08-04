@@ -10,6 +10,7 @@ interface UserRef {
 export interface BusinessUnit {
     id: number;
     name: string;
+    logo?: string | null;
     adminId: number | null;
     admin?: UserRef;
     createdAt: string;
@@ -25,6 +26,7 @@ export interface BusinessUnit {
 
 export interface CreateBusinessUnitPayload {
     name: string;
+    logo?: string;
     adminFullName: string;
     adminUsername: string;
     adminEmail: string;
@@ -33,6 +35,7 @@ export interface CreateBusinessUnitPayload {
 
 export interface UpdateBusinessUnitPayload {
     name?: string;
+    logo?: string;
     adminFullName?: string;
     adminUsername?: string;
     adminEmail?: string;

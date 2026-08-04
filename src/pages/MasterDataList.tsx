@@ -8,8 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
 import { Avatar } from 'antd';
 
-//const API_BASE = 'http://192.168.1.157:3000';
-const API_BASE = 'http://192.168.10.14:3000';
+const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.10.14:3000';
 
 const { Title } = Typography;
 
@@ -73,7 +73,7 @@ export default function MasterDataList() {
       render: (_: unknown, record: CompanyRecord) => (
         <Avatar
           shape="circle"
-          src={record.logo?.url ? `${API_BASE}${record.logo.url}` : undefined}
+          src={record.logo ? `${API_BASE}${record.logo}` : undefined}
         />
       ),
     },

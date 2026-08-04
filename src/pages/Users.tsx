@@ -8,8 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { Switch } from 'antd';
 
 const { Title } = Typography;
-//const API_BASE = 'http://192.168.1.157:3000';
-const API_BASE = 'http://192.168.10.14:3000';
+const API_BASE = 'http://192.168.1.157:3000';
+//const API_BASE = 'http://192.168.10.14:3000';
 
 export default function Users() {
   const navigate = useNavigate();
@@ -71,8 +71,8 @@ export default function Users() {
       width: 60,
       render: (_: unknown, record: Staff) => (
         <Avatar
-          src={record.profilePicture?.url ? `${API_BASE}${record.profilePicture.url}` : undefined}
-          icon={!record.profilePicture?.url ? <UserOutlined /> : undefined}
+          src={record.profilePicture ? `${API_BASE}${record.profilePicture}` : undefined}
+          icon={!record.profilePicture ? <UserOutlined /> : undefined}
         />
       ),
     },

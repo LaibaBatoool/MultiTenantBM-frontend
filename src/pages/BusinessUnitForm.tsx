@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Form, Input, Button, Card, message, Typography, Row, Col } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getBusinessUnit, createBusinessUnit, updateBusinessUnit } from '../api/businessUnits';
+import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
 
 const { Title } = Typography;
 
@@ -11,6 +12,7 @@ export default function BusinessUnitForm() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const logoFieldRef = useRef<FileUploadFieldHandle>(null);
 
   useEffect(() => {
     if (isEditMode) {
@@ -23,10 +25,10 @@ export default function BusinessUnitForm() {
       const unit = await getBusinessUnit(Number(id));
       form.setFieldsValue({
         name: unit.name,
+        logo: unit.logo ? { url: unit.logo } : null,
         adminFullName: unit.admin?.fullName,
         adminUsername: unit.admin?.username,
         adminEmail: unit.admin?.email,
-        // password fields intentionally left blank
       });
     } catch (error) {
       message.error('Failed to load business unit');
@@ -34,13 +36,14 @@ export default function BusinessUnitForm() {
   };
 
   const onFinish = async (values: any) => {
-    const { confirmPassword, ...rest } = values;
+    const { confirmPassword, logo, ...rest } = values;
 
     setLoading(true);
     try {
       if (isEditMode) {
         const payload: any = {
           name: rest.name,
+          logo: logo?.url,
           adminFullName: rest.adminFullName,
           adminUsername: rest.adminUsername,
           adminEmail: rest.adminEmail,
@@ -51,7 +54,7 @@ export default function BusinessUnitForm() {
         await updateBusinessUnit(Number(id), payload);
         message.success('Business unit updated');
       } else {
-        await createBusinessUnit(rest);
+        await createBusinessUnit({ ...rest, logo: logo?.url });
         message.success('Business unit created');
       }
       navigate('/business-units');
@@ -60,6 +63,11 @@ export default function BusinessUnitForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    logoFieldRef.current?.discardUnsavedUpload();
+    navigate('/business-units');
   };
 
   return (
@@ -82,7 +90,7 @@ export default function BusinessUnitForm() {
           <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: 8 }}>
             Save
           </Button>
-          <Button onClick={() => navigate('/business-units')}>Cancel</Button>
+          <Button onClick={handleCancel}>Cancel</Button>
         </div>
       </div>
 
@@ -95,6 +103,9 @@ export default function BusinessUnitForm() {
               rules={[{ required: true, message: 'Name is required' }]}
             >
               <Input placeholder="e.g. North Region" />
+            </Form.Item>
+            <Form.Item label="Logo" name="logo">
+              <FileUploadField ref={logoFieldRef} variant="image" label="Upload Logo" />
             </Form.Item>
           </Card>
         </Col>

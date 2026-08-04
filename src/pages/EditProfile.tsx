@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Form, Input, Button, Card, message, Typography, Row, Col } from 'antd';
 import { useAuth } from '../context/AuthContext';
 import { updateMyProfile } from '../api/auth';
-import FileUploadField from '../components/FileUploadField';
+import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
 
 const { Title } = Typography;
 
@@ -10,6 +10,7 @@ export default function EditProfile() {
   const { currentUser, refreshCurrentUser } = useAuth();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const profilePicRef = useRef<FileUploadFieldHandle>(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -82,7 +83,7 @@ export default function EditProfile() {
               <Input placeholder="e.g. sara@example.com" />
             </Form.Item>
             <Form.Item label="Profile Picture" name="profilePicture">
-              <FileUploadField variant="image" label="Upload Profile Picture" />
+              <FileUploadField ref={profilePicRef} variant="image" label="Upload Profile Picture" />
             </Form.Item>
           </Card>
         </Col>
