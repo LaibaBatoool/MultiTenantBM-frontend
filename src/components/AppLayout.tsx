@@ -36,6 +36,7 @@ import {
   BarChartOutlined,
   PieChartOutlined,
   FileTextOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 
 const API_BASE = 'http://192.168.1.157:3000';
@@ -109,6 +110,9 @@ export default function AppLayout() {
         children: [
           { key: '/finance/expenses', icon: <WalletOutlined />, label: withTooltip('Expenses') },
           { key: '/finance/opening-balances', icon: <FundOutlined />, label: withTooltip('Opening Balances') },
+          ...(hasPermission('finance.journal-entries.view')
+            ? [{ key: '/finance/journal-entries', icon: <AuditOutlined />, label: withTooltip('Journal Entries') }]
+            : []),
           { key: '/finance/capital-contributions', icon: <DollarOutlined />, label: withTooltip('Capital Contributions') },
         ],
       },

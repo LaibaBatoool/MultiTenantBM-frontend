@@ -7,6 +7,13 @@ export interface FiscalYearRecord {
   endDate: string;
   status: 'Open' | 'Closed' | 'Archived';
   openingBalancePosted: boolean;
+  periods?: {
+    id: number;
+    month: number;
+    startDate: string;
+    endDate: string;
+    status: 'Open' | 'Closed' | 'Archived';
+  }[];
 }
 
 export const getFiscalYears = async (businessUnitId?: number): Promise<FiscalYearRecord[]> => {

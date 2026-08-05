@@ -30,6 +30,8 @@ import GeneralLedger from './pages/GeneralLedger';
 import ExpenseTypeForm from './pages/ExpenseTypeForm';
 import AssetForm from './pages/AssetForm';
 import BankAccountForm from './pages/BankAccountForm';
+import JournalEntries from './pages/JournalEntries';
+import JournalEntryForm from './pages/JournalEntryForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -140,6 +142,30 @@ function AppRoutes() {
         <Route path="master-data/bank-accounts" element={<BankAccounts />} />
         <Route path="finance/expenses" element={<Expenses />} />
         <Route path="finance/opening-balances" element={<OpeningBalances />} />
+        <Route
+          path="finance/journal-entries"
+          element={
+            <PermissionRoute permission="finance.journal-entries.view">
+              <JournalEntries />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/journal-entries/new"
+          element={
+            <PermissionRoute permission="finance.journal-entries.add">
+              <JournalEntryForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/journal-entries/:id"
+          element={
+            <PermissionRoute permission="finance.journal-entries.view">
+              <JournalEntryForm />
+            </PermissionRoute>
+          }
+        />
         <Route path="finance/capital-contributions" element={<CapitalContributions />} />
         <Route path="reports/expense-report" element={<ExpenseReport />} />
         <Route path="reports/project-profitability" element={<ProjectProfitability />} />
