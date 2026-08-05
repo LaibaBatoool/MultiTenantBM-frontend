@@ -135,52 +135,55 @@ export default function BusinessUnits() {
 
       <Row gutter={[16, 16]}>
         {filteredData.map((bu) => (
-          <Col key={bu.id} xs={24} sm={12} md={8} lg={6}>
+          <Col key={bu.id} xs={24} sm={12} md={8} lg={6} >
             <Card
               size="small"
               loading={loading}
-              actions={[
-                <LoginOutlined
-                  key="select"
-                  title="Select"
-                  onClick={() => handleSelect(bu)}
-                />,
-                <EditOutlined
-                  key="edit"
-                  title="Edit"
-                  onClick={() => navigate(`/business-units/${bu.id}/edit`)}
-                />,
-                <Popconfirm
-                  key="toggle"
-                  title={
-                    status === 'active'
-                      ? 'Deactivate this business unit?'
-                      : 'Activate this business unit?'
-                  }
-                  onConfirm={() => handleToggleStatus(bu)}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  {status === 'active' ? (
-                    <EyeOutlined title="Deactivate" />
-                  ) : (
-                    <EyeInvisibleOutlined title="Activate" />
-                  )}
-                </Popconfirm>,
-              ]}
+              //style={{backgroundColor: '#f0f0f0'}}
+            actions={[
+              <LoginOutlined
+                key="select"
+                title="Select"
+                style={{ color: 'blue' }}
+                onClick={() => handleSelect(bu)}
+              />,
+              <EditOutlined
+                key="edit"
+                title="Edit"
+                style={{ color: 'green' }}
+                onClick={() => navigate(`/business-units/${bu.id}/edit`)}
+              />,
+              <Popconfirm
+                key="toggle"
+                title={
+                  status === 'active'
+                    ? 'Deactivate this business unit?'
+                    : 'Activate this business unit?'
+                }
+                onConfirm={() => handleToggleStatus(bu)}
+                okText="Yes"
+                cancelText="No"
+              >
+                {status === 'active' ? (
+                  <EyeOutlined title="Deactivate" style={{ color: 'red' }} />
+                ) : (
+                  <EyeInvisibleOutlined title="Activate" style={{ color: 'red' }} />
+                )}
+              </Popconfirm>,
+            ]}
             >
-              <Card.Meta
-                avatar={
-                  <Avatar
-                    src={bu.logo ? `${API_BASE}${bu.logo}` : undefined}
-                    icon={!bu.logo ? <ApartmentOutlined /> : undefined}
-                  />
-                } title={bu.name}
-              />
-            </Card>
+            <Card.Meta
+              avatar={
+                <Avatar
+                  src={bu.logo ? `${API_BASE}${bu.logo}` : undefined}
+                  icon={!bu.logo ? <ApartmentOutlined /> : undefined}
+                />
+              } title={bu.name} 
+            />
+          </Card>
           </Col>
         ))}
-      </Row>
-    </div>
+    </Row>
+    </div >
   );
 }
