@@ -124,7 +124,9 @@ export default function AppLayout() {
         children: [
           { key: '/reports/expense-report', icon: <PieChartOutlined />, label: withTooltip('Expense Report') },
           { key: '/reports/project-profitability', icon: <FundOutlined />, label: withTooltip('Project Profitability') },
-          { key: '/reports/general-ledger', icon: <FileTextOutlined />, label: withTooltip('General Ledger') },
+          ...(hasPermission('finance.general-ledger.view')
+            ? [{ key: '/reports/general-ledger', icon: <FileTextOutlined />, label: withTooltip('General Ledger') }]
+            : []),
         ],
       },
 

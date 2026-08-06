@@ -14,7 +14,7 @@ import {
   Spin,
 } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import dayjs, { type Dayjs } from 'dayjs';
 import { createJournalEntry, getJournalEntry } from '../api/journalEntries';
 import { getAccounts, type AccountRecord } from '../api/accounts';
@@ -38,7 +38,9 @@ export default function JournalEntryForm() {
   const { id } = useParams();
   const isViewMode = Boolean(id);
   const navigate = useNavigate();
+  const location = useLocation();
   const { selectedBusinessUnit } = useBusinessUnit();
+  const backPath = (location.state as { from?: string } | null)?.from || '/finance/journal-entries';
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [fiscalYears, setFiscalYears] = useState<FiscalYearRecord[]>([]);
@@ -258,7 +260,7 @@ export default function JournalEntryForm() {
               Post
             </Button>
           )}
-          <Button onClick={() => navigate('/finance/journal-entries')}>Back</Button>
+          <Button onClick={() => navigate(backPath)}>Back</Button>
         </div>
       </div>
 

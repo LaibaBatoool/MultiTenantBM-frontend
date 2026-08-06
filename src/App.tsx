@@ -169,7 +169,14 @@ function AppRoutes() {
         <Route path="finance/capital-contributions" element={<CapitalContributions />} />
         <Route path="reports/expense-report" element={<ExpenseReport />} />
         <Route path="reports/project-profitability" element={<ProjectProfitability />} />
-        <Route path="reports/general-ledger" element={<GeneralLedger />} />
+        <Route
+          path="reports/general-ledger"
+          element={
+            <PermissionRoute permission="finance.general-ledger.view">
+              <GeneralLedger />
+            </PermissionRoute>
+          }
+        />
         <Route path="profile" element={<EditProfile />} />
         <Route path="master-data/:type" element={<MasterDataList />} />
         <Route path="master-data/:type/new" element={<MasterDataForm />} />

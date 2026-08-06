@@ -1,0 +1,45 @@
+import api from './axios';
+
+export interface GeneralLedgerLine {
+  id: number;
+  journalId: number;
+  voucherNo: string;
+  voucherType: string;
+  postingDate: string;
+  account: {
+    id: number;
+    code: string;
+    name: string;
+    accountType: string;
+  };
+  description?: string | null;
+  debit: number;
+  credit: number;
+  balance: number;
+}
+
+export interface GeneralLedgerResult {
+  account: { id: number; code: string; name: string; accountType: string } | null;
+  openingBalance: number;
+  totalDebits: number;
+  totalCredits: number;
+  transactionCount: number;
+  lines: GeneralLedgerLine[];
+  closingBalance: number;
+  rangeStart: string | null;
+  rangeEnd: string | null;
+}
+
+export interface GeneralLedgerParams {
+  businessUnitId?: number;
+  accountId?: number;
+  fiscalYearId?: number;
+  periodId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const getGeneralLedger = async (params: GeneralLedgerParams): Promise<GeneralLedgerResult> => {
+  const response = await api.get('/general-ledger', { params });
+  return response.data;
+};
