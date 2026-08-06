@@ -126,7 +126,8 @@ export default function JournalEntryForm() {
       (entry) => postingDateValue && postingDateValue >= entry.startDate && postingDateValue <= entry.endDate,
     );
 
-    const lineChecks = rows.map((row) => {
+    const nonEmptyRows = rows.filter((row) => row.accountId || row.debit || row.credit);
+    const lineChecks = nonEmptyRows.map((row) => {
       const debit = row.debit || 0;
       const credit = row.credit || 0;
       const hasSingleAmount = (debit > 0) !== (credit > 0);
@@ -138,9 +139,9 @@ export default function JournalEntryForm() {
       };
     });
 
-    const hasAtLeastTwoLines = rows.length >= 2;
-    const hasAtLeastOneDebitLine = rows.some((row) => (row.debit || 0) > 0 && !(row.credit || 0));
-    const hasAtLeastOneCreditLine = rows.some((row) => (row.credit || 0) > 0 && !(row.debit || 0));
+    const hasAtLeastTwoLines = nonEmptyRows.length >= 2;
+    const hasAtLeastOneDebitLine = nonEmptyRows.some((row) => (row.debit || 0) > 0 && !(row.credit || 0));
+    const hasAtLeastOneCreditLine = nonEmptyRows.some((row) => (row.credit || 0) > 0 && !(row.debit || 0));
     const everyLineHasAccount = lineChecks.every((line) => line.hasAccount);
     const everyLineHasSingleAmount = lineChecks.every((line) => line.hasSingleAmount);
     const allLinesComplete = lineChecks.every((line) => line.isComplete);
@@ -205,12 +206,14 @@ export default function JournalEntryForm() {
         {
           postingDate: postingDate!.format('YYYY-MM-DD'),
           description: description || undefined,
-          lines: rows.map((r) => ({
-            accountId: r.accountId!,
-            description: r.description,
-            debit: r.debit || 0,
-            credit: r.credit || 0,
-          })),
+          lines: rows
+            .filter((r) => r.accountId || r.debit || r.credit)
+            .map((r) => ({
+              accountId: r.accountId!,
+              description: r.description,
+              debit: r.debit || 0,
+              credit: r.credit || 0,
+            })),
         },
         selectedBusinessUnit?.id,
       );
