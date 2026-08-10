@@ -1,0 +1,219 @@
+import { useEffect, useState } from 'react';
+import { Typography, Select, Button, Table, DatePicker, Card, Row, Col, Statistic, Tag, message, Empty } from 'antd';
+import dayjs from 'dayjs';
+import { getFiscalYears, type FiscalYearRecord } from '../api/fiscalYears';
+import { getTrialBalance, exportTrialBalance, type TrialBalanceResult } from '../api/trialBalance';
+import { useBusinessUnit } from '../context/BusinessUnitContext';
+
+const { Title, Text } = Typography;
+
+export default function TrialBalance() {
+  const { selectedBusinessUnit } = useBusinessUnit();
+
+  const [fiscalYears, setFiscalYears] = useState<FiscalYearRecord[]>([]);
+  const [fiscalYearId, setFiscalYearId] = useState<number | undefined>();
+  const [periodId, setPeriodId] = useState<number | undefined>();
+  const [asOfDate, setAsOfDate] = useState<dayjs.Dayjs | null>(null);
+
+  const [result, setResult] = useState<TrialBalanceResult | null>(null);
+  const [loadingFilters, setLoadingFilters] = useState(false);
+  const [loadingReport, setLoadingReport] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  useEffect(() => {
+    if (selectedBusinessUnit?.id) {
+      loadFiscalYears();
+      setFiscalYearId(undefined);
+      setPeriodId(undefined);
+      setAsOfDate(null);
+      setResult(null);
+    }
+  }, [selectedBusinessUnit]);
+
+  const loadFiscalYears = async () => {
+    setLoadingFilters(true);
+    try {
+      const data = await getFiscalYears(selectedBusinessUnit?.id);
+      setFiscalYears(data);
+    } catch (error) {
+      message.error('Fiscal years load nahi ho sakay.');
+    } finally {
+      setLoadingFilters(false);
+    }
+  };
+
+  const selectedFiscalYear = fiscalYears.find((fy) => fy.id === fiscalYearId);
+
+  const handleFiscalYearChange = (value: number | undefined) => {
+    setFiscalYearId(value);
+    setPeriodId(undefined);
+    setAsOfDate(null);
+  };
+
+  const handlePeriodChange = (value: number | undefined) => {
+    setPeriodId(value);
+    setAsOfDate(null);
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null) => {
+    setAsOfDate(date);
+    setFiscalYearId(undefined);
+    setPeriodId(undefined);
+  };
+
+  const buildParams = () => ({
+    businessUnitId: selectedBusinessUnit?.id,
+    fiscalYearId,
+    periodId,
+    asOfDate: asOfDate ? asOfDate.format('YYYY-MM-DD') : undefined,
+  });
+
+  const handleViewReport = async () => {
+    setLoadingReport(true);
+    try {
+      const data = await getTrialBalance(buildParams());
+      setResult(data);
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Trial Balance load nahi ho saka.');
+      setResult(null);
+    } finally {
+      setLoadingReport(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportTrialBalance(buildParams());
+    } catch (error) {
+      message.error('Excel export nahi ho saka.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <div>
+      <Title level={4} style={{ marginTop: 0, marginBottom: 16 }}>
+        Trial Balance
+      </Title>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+        <Select
+          placeholder="Fiscal Year"
+          style={{ width: 180 }}
+          value={fiscalYearId}
+          onChange={handleFiscalYearChange}
+          loading={loadingFilters}
+          options={fiscalYears.map((fy) => ({ value: fy.id, label: fy.name }))}
+          allowClear
+        />
+
+        <Select
+          placeholder="Period"
+          style={{ width: 160 }}
+          value={periodId}
+          onChange={handlePeriodChange}
+          disabled={!selectedFiscalYear}
+          options={(selectedFiscalYear?.periods || []).map((p) => ({
+            value: p.id,
+            label: dayjs(p.startDate).format('MMM YYYY'),
+          }))}
+          allowClear
+        />
+
+        <DatePicker
+          placeholder="As Of Date"
+          value={asOfDate}
+          onChange={handleDateChange}
+          disabled={!!periodId || !!fiscalYearId}
+        />
+
+        <Button type="primary" onClick={handleViewReport} loading={loadingReport}>
+          View Report
+        </Button>
+
+        {result && (
+          <Button type="primary" style={{ width: 110 }} onClick={handleExport} loading={exporting}>
+            Excel
+          </Button>
+        )}
+      </div>
+
+      {!result ? (
+        <Empty description="Select filters and press 'View Report'" />
+      ) : (
+        <>
+          <Card size="small" style={{ marginBottom: 16 }}>
+            <Row gutter={16}>
+              <Col span={5}>
+                <Statistic title="Total Accounts" value={result.totalAccounts} />
+              </Col>
+              <Col span={5}>
+                <Statistic title="Debit Balance" value={result.totalDebit} precision={2} />
+              </Col>
+              <Col span={5}>
+                <Statistic title="Credit Balance" value={result.totalCredit} precision={2} />
+              </Col>
+              <Col span={5}>
+                <Statistic title="Difference" value={result.difference} precision={2} />
+              </Col>
+              <Col span={4}>
+                <Text type="secondary" style={{ fontSize: 13 }}>Status</Text>
+                <div style={{ marginTop: 4 }}>
+                  <Tag color={result.isBalanced ? 'green' : 'red'}>
+                    {result.isBalanced ? 'Balanced' : 'Not Balanced'}
+                  </Tag>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+
+          <Text type="secondary">
+            {result.periodLabel || `As of ${result.asOfDate}`}
+          </Text>
+
+          <Table
+            style={{ marginTop: 8 }}
+            dataSource={result.accounts}
+            rowKey="accountId"
+            loading={loadingReport}
+            pagination={false}
+            summary={() => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0}>
+                  <Text strong>TOTAL</Text>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={1}>
+                  <Text strong>{result.totalDebit.toLocaleString()}</Text>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={2}>
+                  <Text strong>{result.totalCredit.toLocaleString()}</Text>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            )}
+            columns={[
+              {
+                title: 'Account',
+                dataIndex: 'name',
+                render: (_: string, record) => `${record.code} - ${record.name}`,
+              },
+              {
+                title: 'Debit',
+                dataIndex: 'debit',
+                align: 'right',
+                render: (v: number) => (v ? v.toLocaleString() : ''),
+              },
+              {
+                title: 'Credit',
+                dataIndex: 'credit',
+                align: 'right',
+                render: (v: number) => (v ? v.toLocaleString() : ''),
+              },
+            ]}
+          />
+        </>
+      )}
+    </div>
+  );
+}

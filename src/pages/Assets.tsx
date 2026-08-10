@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Typography, message, Select, Space, Switch } from 'antd';
+import { Table, Button, Typography, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getAssets, toggleAssetActive, type Asset } from '../api/assets';
+import { getAssets, type Asset } from '../api/assets';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
@@ -15,7 +15,10 @@ export default function Assets() {
   const { hasPermission } = useAuth();
   const [data, setData] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
+
+  /*
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
+  */
 
   const fetchData = async () => {
     if (!selectedBusinessUnit) {
@@ -24,7 +27,7 @@ export default function Assets() {
     }
     setLoading(true);
     try {
-      const assets = await getAssets(selectedBusinessUnit.id, status);
+      const assets = await getAssets(selectedBusinessUnit.id);
       setData(assets);
     } catch (error) {
       message.error('Failed to load assets');
@@ -35,8 +38,9 @@ export default function Assets() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedBusinessUnit, status]);
+  }, [selectedBusinessUnit]);
 
+  /*
   const handleToggle = async (id: number) => {
     try {
       await toggleAssetActive(id, selectedBusinessUnit?.id);
@@ -46,18 +50,14 @@ export default function Assets() {
       message.error('Failed to update status');
     }
   };
+  */
 
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: Asset) =>
-        status === 'active' ? (
-          <a onClick={() => navigate(`/master-data/assets/${record.id}/edit`)}>{text}</a>
-        ) : (
-          <span>{text}</span>
-        ),
+      render: (text: string, record: Asset) => <a onClick={() => navigate(`/finance/assets/${record.id}/edit`)}>{text}</a>,
     },
     { title: 'Category', dataIndex: 'assetCategory', key: 'assetCategory', render: (v: string | null) => v || '' },
     { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', render: (v: string | null) => v || '' },
@@ -76,6 +76,7 @@ export default function Assets() {
       render: (u: Asset['createdByUser']) => u?.username || '',
     },
     {
+      /*
       title: 'Active',
       key: 'active',
       render: (_: unknown, record: Asset) =>
@@ -84,6 +85,7 @@ export default function Assets() {
         ) : (
           <span>{record.isActive ? 'Yes' : 'No'}</span>
         ),
+      */
     },
   ];
 
@@ -94,12 +96,13 @@ export default function Assets() {
           Assets ({data.length})
         </Title>
         {hasPermission('master-data.assets.add') && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/master-data/assets/new')}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/finance/assets/new')}>
             Add New
           </Button>
         )}
       </div>
 
+      {/*
       <Space style={{ marginBottom: 16 }}>
         <Select
           value={status}
@@ -111,6 +114,7 @@ export default function Assets() {
           ]}
         />
       </Space>
+      */}
 
       <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
     </div>

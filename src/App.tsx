@@ -32,6 +32,10 @@ import AssetForm from './pages/AssetForm';
 import BankAccountForm from './pages/BankAccountForm';
 import JournalEntries from './pages/JournalEntries';
 import JournalEntryForm from './pages/JournalEntryForm';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import TrialBalance from './pages/TrialBalance';
+import ProfitAndLoss from './pages/ProfitAndLoss';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -55,6 +59,14 @@ function AppRoutes() {
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/" /> : <Login />}
+      />
+      <Route
+        path="/forgot-password"
+        element={isAuthenticated ? <Navigate to="/" /> : <ForgotPassword />}
+      />
+      <Route
+        path="/reset-password"
+        element={isAuthenticated ? <Navigate to="/" /> : <ResetPassword />}
       />
       <Route
         path="/"
@@ -125,9 +137,6 @@ function AppRoutes() {
             </PermissionRoute>
           }
         />
-        <Route path="master-data/assets" element={<Assets />} />
-        <Route path="master-data/assets/new" element={<AssetForm />} />
-        <Route path="master-data/assets/:id/edit" element={<AssetForm />} />
         <Route path="master-data/bank-accounts" element={<BankAccounts />} />
         <Route path="master-data/bank-accounts/new" element={<BankAccountForm />} />
         <Route path="master-data/bank-accounts/:id/edit" element={<BankAccountForm />} />
@@ -167,6 +176,9 @@ function AppRoutes() {
           }
         />
         <Route path="finance/capital-contributions" element={<CapitalContributions />} />
+        <Route path="finance/assets" element={<Assets />} />
+        <Route path="finance/assets/new" element={<AssetForm />} />
+        <Route path="finance/assets/:id/edit" element={<AssetForm />} />
         <Route path="reports/expense-report" element={<ExpenseReport />} />
         <Route path="reports/project-profitability" element={<ProjectProfitability />} />
         <Route
@@ -174,6 +186,22 @@ function AppRoutes() {
           element={
             <PermissionRoute permission="finance.general-ledger.view">
               <GeneralLedger />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="reports/profit-loss"
+          element={
+            <PermissionRoute permission="finance.profit-loss.view">
+              <ProfitAndLoss />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="reports/trial-balance"
+          element={
+            <PermissionRoute permission="finance.trial-balance.view">
+              <TrialBalance />
             </PermissionRoute>
           }
         />

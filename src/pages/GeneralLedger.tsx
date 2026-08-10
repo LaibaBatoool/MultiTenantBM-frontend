@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs, { type Dayjs } from 'dayjs';
 import { getAccounts, type AccountRecord } from '../api/accounts';
 import { getFiscalYears, type FiscalYearRecord } from '../api/fiscalYears';
-import { getGeneralLedger, type GeneralLedgerResult } from '../api/generealLedger';
+import { exportGeneralLedger, getGeneralLedger, type GeneralLedgerResult } from '../api/generealLedger';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 
 const { Title, Text } = Typography;
@@ -186,11 +186,22 @@ export default function GeneralLedger() {
           value={dateRange}
           onChange={handleDateRangeChange}
           disabled={!!periodId || !!fiscalYearId}
+          allowEmpty={[true, true]}
         />
 
         <Button type="primary" onClick={handleViewLedger} loading={loadingLedger}>
           View Ledger
         </Button>
+
+        <Button type="primary" style={{ width: 110 }} onClick={() => exportGeneralLedger({
+          businessUnitId: selectedBusinessUnit?.id,
+          accountId, fiscalYearId, periodId,
+          startDate: dateRange ? dateRange[0].format('YYYY-MM-DD') : undefined,
+          endDate: dateRange ? dateRange[1].format('YYYY-MM-DD') : undefined,
+        })}>
+          Excel Report
+        </Button>
+
       </div>
 
       {result ? (

@@ -40,7 +40,7 @@ import {
 } from '@ant-design/icons';
 
 const API_BASE = 'http://192.168.1.157:3000';
-//const API_BASE = 'http://192.168.10.14:3000';
+//const API_BASE = 'http://192.168.10.21:3000';
 
 const { Header, Sider, Content } = Layout;
 
@@ -114,6 +114,9 @@ export default function AppLayout() {
             ? [{ key: '/finance/journal-entries', icon: <AuditOutlined />, label: withTooltip('Journal Entries') }]
             : []),
           { key: '/finance/capital-contributions', icon: <DollarOutlined />, label: withTooltip('Capital Contributions') },
+          ...(hasPermission('master-data.assets.view')
+            ? [{ key: '/finance/assets', icon: <LaptopOutlined />, label: withTooltip('Assets') }]
+            : []),
         ],
       },
 
@@ -126,6 +129,13 @@ export default function AppLayout() {
           { key: '/reports/project-profitability', icon: <FundOutlined />, label: withTooltip('Project Profitability') },
           ...(hasPermission('finance.general-ledger.view')
             ? [{ key: '/reports/general-ledger', icon: <FileTextOutlined />, label: withTooltip('General Ledger') }]
+            : []),
+
+          ...(hasPermission('finance.profit-loss.view')
+            ? [{ key: '/reports/profit-loss', icon: <BarChartOutlined />, label: withTooltip('Profit & Loss') }]
+            : []),
+          ...(hasPermission('finance.trial-balance.view')
+            ? [{ key: '/reports/trial-balance', icon: <AuditOutlined />, label: withTooltip('Trial Balance') }]
             : []),
         ],
       },
@@ -183,16 +193,13 @@ export default function AppLayout() {
               ...(hasPermission('master-data.customer.view')
                 ? [{ key: '/master-data/customer', icon: <SmileOutlined />, label: withTooltip('Customer') }]
                 : []),
-                { key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') },
+              { key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') },
 
               // ...(hasPermission('master-data.projects.view')
               //   ? [{ key: '/master-data/projects', icon: <ProjectOutlined />, label: withTooltip('Projects') }]
               //   : []),
               ...(hasPermission('master-data.employees.view')
                 ? [{ key: '/master-data/employees', icon: <IdcardOutlined />, label: withTooltip('Employees') }]
-                : []),
-              ...(hasPermission('master-data.assets.view')
-                ? [{ key: '/master-data/assets', icon: <LaptopOutlined />, label: withTooltip('Assets') }]
                 : []),
               ...(hasPermission('master-data.expense-types.view')
                 ? [{ key: '/master-data/expense-types', icon: <TagsOutlined />, label: withTooltip('Expense Types') }]

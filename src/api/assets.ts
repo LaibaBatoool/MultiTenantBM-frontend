@@ -9,6 +9,11 @@ export interface Asset {
   purchaseDate: string | null;
   purchasePrice: number | null;
   currentBookValue: number | null;
+  assetAccountId: number | null;
+  paymentAccountId: number | null;
+  assetAccount?: { id: number; code: string; name: string } | null;
+  paymentAccount?: { id: number; code: string; name: string } | null;
+  journal?: { id: number; voucherNo: string } | null;
   isActive: boolean;
   createdByUser?: { username: string };
   createdAt: string;
@@ -22,8 +27,10 @@ export interface AssetPayload {
   assetCategory?: string;
   serialNumber?: string;
   purchaseDate?: string;
-  purchasePrice?: number;
+  purchasePrice: number;
   currentBookValue?: number;
+  assetAccountId: number;
+  paymentAccountId: number;
 }
 
 export const getAssets = async (businessUnitId?: number, status: 'active' | 'inactive' = 'active') => {

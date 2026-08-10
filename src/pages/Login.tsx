@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Form, Input, Button, Card, message, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -43,9 +43,13 @@ export default function Login() {
             <Input.Password prefix={<LockOutlined />} placeholder="Password" />
           </Form.Item>
 
-          <Form.Item name="rememberMe" valuePropName="checked">
+          <Form.Item name="rememberMe" valuePropName="checked" style={{ marginBottom: 8 }}>
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
+
+          <div style={{ textAlign: 'left', marginBottom: 16 }}>
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </div>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>
