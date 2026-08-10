@@ -108,7 +108,9 @@ export default function AppLayout() {
         icon: <DollarOutlined />,
         label: withTooltip('Finance'),
         children: [
-          { key: '/finance/expenses', icon: <WalletOutlined />, label: withTooltip('Expenses') },
+          ...(hasPermission('finance.expenses.view')
+            ? [{ key: '/finance/expenses', icon: <WalletOutlined />, label: withTooltip('Expenses') }]
+            : []),
           { key: '/finance/opening-balances', icon: <FundOutlined />, label: withTooltip('Opening Balances') },
           ...(hasPermission('finance.journal-entries.view')
             ? [{ key: '/finance/journal-entries', icon: <AuditOutlined />, label: withTooltip('Journal Entries') }]

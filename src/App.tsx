@@ -149,7 +149,14 @@ function AppRoutes() {
         <Route path="master-data/expense-types" element={<ExpenseTypesPage />} />        <Route path="master-data/assets" element={<Assets />} />
         <Route path="master-data/expense-types" element={<ExpenseTypesPage />} />
         <Route path="master-data/bank-accounts" element={<BankAccounts />} />
-        <Route path="finance/expenses" element={<Expenses />} />
+        <Route
+          path="finance/expenses"
+          element={
+            <PermissionRoute permission="finance.expenses.view">
+              <Expenses />
+            </PermissionRoute>
+          }
+        />
         <Route path="finance/opening-balances" element={<OpeningBalances />} />
         <Route
           path="finance/journal-entries"
