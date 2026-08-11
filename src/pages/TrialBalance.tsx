@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Typography, Select, Button, Table, DatePicker, Card, Row, Col, Statistic, Tag, message, Empty } from 'antd';
+import { Typography, Select, Button, Table, DatePicker, Card, Row, Col, Statistic, Tag, message, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { getFiscalYears, type FiscalYearRecord } from '../api/fiscalYears';
 import { getTrialBalance, exportTrialBalance, type TrialBalanceResult } from '../api/trialBalance';
@@ -20,9 +20,32 @@ export default function TrialBalance() {
   const [loadingReport, setLoadingReport] = useState(false);
   const [exporting, setExporting] = useState(false);
 
+  const fetchReport = async (params?: {
+    fiscalYearId?: number;
+    periodId?: number;
+    asOfDate?: string;
+  }) => {
+    if (!selectedBusinessUnit?.id) return;
+    setLoadingReport(true);
+    try {
+      const data = await getTrialBalance({
+        businessUnitId: selectedBusinessUnit.id,
+        fiscalYearId: params?.fiscalYearId,
+        periodId: params?.periodId,
+        asOfDate: params?.asOfDate,
+      });
+      setResult(data);
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Trial Balance load nahi ho saka.');
+      setResult(null);
+    } finally {
+      setLoadingReport(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedBusinessUnit?.id) {
-      loadFiscalYears();
+      void loadFiscalYears();
       setFiscalYearId(undefined);
       setPeriodId(undefined);
       setAsOfDate(null);
@@ -35,6 +58,13 @@ export default function TrialBalance() {
     try {
       const data = await getFiscalYears(selectedBusinessUnit?.id);
       setFiscalYears(data);
+
+      const today = dayjs();
+      setAsOfDate(today);
+      setFiscalYearId(undefined);
+      setPeriodId(undefined);
+
+      await fetchReport({ asOfDate: today.format('YYYY-MM-DD') });
     } catch (error) {
       message.error('Fiscal years load nahi ho sakay.');
     } finally {
@@ -62,29 +92,19 @@ export default function TrialBalance() {
   };
 
   const buildParams = () => ({
-    businessUnitId: selectedBusinessUnit?.id,
     fiscalYearId,
     periodId,
     asOfDate: asOfDate ? asOfDate.format('YYYY-MM-DD') : undefined,
   });
 
   const handleViewReport = async () => {
-    setLoadingReport(true);
-    try {
-      const data = await getTrialBalance(buildParams());
-      setResult(data);
-    } catch (error: any) {
-      message.error(error?.response?.data?.message || 'Trial Balance load nahi ho saka.');
-      setResult(null);
-    } finally {
-      setLoadingReport(false);
-    }
+    await fetchReport(buildParams());
   };
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportTrialBalance(buildParams());
+      await exportTrialBalance({ businessUnitId: selectedBusinessUnit?.id, ...buildParams() });
     } catch (error) {
       message.error('Excel export nahi ho saka.');
     } finally {
@@ -141,7 +161,7 @@ export default function TrialBalance() {
       </div>
 
       {!result ? (
-        <Empty description="Select filters and press 'View Report'" />
+        loadingFilters || loadingReport ? <Spin /> : null
       ) : (
         <>
           <Card size="small" style={{ marginBottom: 16 }}>

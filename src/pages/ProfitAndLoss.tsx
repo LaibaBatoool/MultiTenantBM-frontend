@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Typography, Select, Button, DatePicker, Card, Row, Col, Statistic, Divider, message, Empty } from 'antd';
+import { Typography, Select, Button, DatePicker, Card, Row, Col, Statistic, Divider, message, Empty, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { getFiscalYears, type FiscalYearRecord } from '../api/fiscalYears';
 import { getProfitAndLoss, exportProfitAndLoss, type ProfitLossResult } from '../api/profitLoss';
@@ -31,11 +31,49 @@ export default function ProfitAndLoss() {
         }
     }, [selectedBusinessUnit]);
 
+    const getDefaultFiscalYearId = (years: FiscalYearRecord[]) => {
+        const today = dayjs().format('YYYY-MM-DD');
+        const currentYear = years.find((fy) => fy.startDate <= today && fy.endDate >= today);
+        return currentYear?.id ?? years[0]?.id;
+    };
+
+    const fetchReport = async (params?: {
+        fiscalYearId?: number;
+        periodId?: number;
+        startDate?: string;
+        endDate?: string;
+    }) => {
+        if (!selectedBusinessUnit?.id) return;
+        setLoadingReport(true);
+        try {
+            const data = await getProfitAndLoss({
+                businessUnitId: selectedBusinessUnit.id,
+                fiscalYearId: params?.fiscalYearId,
+                periodId: params?.periodId,
+                startDate: params?.startDate,
+                endDate: params?.endDate,
+            });
+            setResult(data);
+        } catch (error: any) {
+            message.error(error?.response?.data?.message || 'Profit & Loss load nahi ho saka.');
+            setResult(null);
+        } finally {
+            setLoadingReport(false);
+        }
+    };
+
     const loadFiscalYears = async () => {
         setLoadingFilters(true);
         try {
             const data = await getFiscalYears(selectedBusinessUnit?.id);
             setFiscalYears(data);
+
+            const defaultFiscalYearId = getDefaultFiscalYearId(data);
+            setFiscalYearId(defaultFiscalYearId);
+            setPeriodId(undefined);
+            setDateRange(null);
+
+            await fetchReport({ fiscalYearId: defaultFiscalYearId });
         } catch (error) {
             message.error('Fiscal years load nahi ho sakay.');
         } finally {
@@ -79,16 +117,12 @@ export default function ProfitAndLoss() {
             message.warning('Report dekhne ke liye Fiscal Year, Period, ya Date Range select karein.');
             return;
         }
-        setLoadingReport(true);
-        try {
-            const data = await getProfitAndLoss(buildParams());
-            setResult(data);
-        } catch (error: any) {
-            message.error(error?.response?.data?.message || 'Profit & Loss load nahi ho saka.');
-            setResult(null);
-        } finally {
-            setLoadingReport(false);
-        }
+        await fetchReport({
+            fiscalYearId,
+            periodId,
+            startDate: dateRange ? dateRange[0].format('YYYY-MM-DD') : undefined,
+            endDate: dateRange ? dateRange[1].format('YYYY-MM-DD') : undefined,
+        });
     };
 
     const handleExport = async () => {
@@ -151,7 +185,7 @@ export default function ProfitAndLoss() {
             </div>
 
             {!result ? (
-                <Empty description="Select filters and press 'View Report'" />
+                loadingFilters || loadingReport ? <Spin /> : <Empty description="Select filters and press 'View Report'" />
             ) : (
                 <>
                     <Text type="secondary">{result.periodLabel}</Text>
@@ -223,9 +257,11 @@ export default function ProfitAndLoss() {
                                 <Statistic
                                     value={result.netProfit}
                                     precision={0}
-                                    valueStyle={{
-                                        fontSize: 16,
-                                        color: result.netProfit >= 0 ? '#3f8600' : '#cf1322',
+                                    styles={{
+                                        content: {
+                                            fontSize: 16,
+                                            color: result.netProfit >= 0 ? '#3f8600' : '#cf1322',
+                                        }
                                     }}
                                 />
                             </Col>
