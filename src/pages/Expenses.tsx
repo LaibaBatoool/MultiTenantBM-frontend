@@ -44,10 +44,16 @@ export default function Expenses() {
   }, [selectedBusinessUnit]);
 
   const expenseAccounts = useMemo(
-    () => accounts.filter((account) => !account.isGroup && account.accountType === 'EXPENSE'),
+    () => accounts.filter((account) => !account.isGroup && (account.accountType === 'EXPENSE' || account.accountType === 'COGS')),
     [accounts],
   );
-  const paymentAccounts = useMemo(() => accounts.filter((account) => !account.isGroup), [accounts]);
+  const paymentAccounts = useMemo(() => {
+    const cashBankGroupIds = accounts
+      .filter((account) => account.isGroup && (account.name === 'Cash' || account.name === 'Bank'))
+      .map((account) => account.id);
+    return accounts.filter((account) => !account.isGroup && cashBankGroupIds.includes(account.parentAccountId as number));
+  }, [accounts]);
+
 
   const handleSubmit = async (values: any) => {
     if (!selectedBusinessUnit?.id) {
