@@ -139,6 +139,9 @@ export default function AppLayout() {
           ...(hasPermission('finance.trial-balance.view')
             ? [{ key: '/reports/trial-balance', icon: <AuditOutlined />, label: withTooltip('Trial Balance') }]
             : []),
+          ...(hasPermission('finance.balance-sheet.view')
+            ? [{ key: '/reports/balance-sheet', icon: <PieChartOutlined />, label: withTooltip('Balance Sheet') }]
+            : []),
         ],
       },
 
