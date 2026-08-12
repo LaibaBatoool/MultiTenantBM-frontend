@@ -37,6 +37,7 @@ export interface GeneralLedgerParams {
   periodId?: number;
   startDate?: string;
   endDate?: string;
+  voucherNo?: string;
 }
 
 export const getGeneralLedger = async (params: GeneralLedgerParams): Promise<GeneralLedgerResult> => {

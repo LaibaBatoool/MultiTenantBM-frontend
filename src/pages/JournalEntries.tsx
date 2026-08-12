@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Typography, Button, Tag } from 'antd';
+import { Table, Typography, Button, Tag, Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { getJournalEntries, type JournalEntryRecord } from '../api/journalEntries';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
@@ -15,6 +15,7 @@ export default function JournalEntries() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [voucherNo, setVoucherNo] = useState('');
 
   useEffect(() => {
     if (selectedBusinessUnit?.id) {
@@ -25,7 +26,7 @@ export default function JournalEntries() {
   const load = async () => {
     setLoading(true);
     try {
-      const result = await getJournalEntries(selectedBusinessUnit?.id, page, 10);
+      const result = await getJournalEntries(selectedBusinessUnit?.id, page, 10, voucherNo);
       setJournals(result.journals);
       setTotal(result.total);
     } catch (error) {
@@ -45,6 +46,48 @@ export default function JournalEntries() {
             New Journal Entry
           </Button>
         )}
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: 12,
+          marginBottom: 16,
+          alignItems: 'center',
+        }}
+      >
+        <Input
+          placeholder="Voucher Number"
+          value={voucherNo}
+          onChange={(e) => setVoucherNo(e.target.value)}
+          style={{ width: 220 }}
+          allowClear
+        />
+
+        <Button
+          type="primary"
+          onClick={() => {
+            setPage(1);
+            void load();
+          }}
+        >
+          Search
+        </Button>
+
+        <Button
+          onClick={() => {
+            setVoucherNo('');
+            setPage(1);
+            void getJournalEntries(selectedBusinessUnit?.id, 1, 10, '').then(
+              (result) => {
+                setJournals(result.journals);
+                setTotal(result.total);
+              },
+            );
+          }}
+        >
+          Reset
+        </Button>
       </div>
 
       <Table

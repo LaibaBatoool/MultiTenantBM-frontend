@@ -31,8 +31,17 @@ export const getJournalEntries = async (
   businessUnitId?: number,
   page = 1,
   pageSize = 10,
+  voucherNo?: string,
 ): Promise<{ journals: JournalEntryRecord[]; total: number }> => {
-  const response = await api.get('/journal-entries', { params: { businessUnitId, page, pageSize } });
+  const response = await api.get('/journal-entries', {
+    params: {
+      businessUnitId,
+      page,
+      pageSize,
+      voucherNo: voucherNo || undefined,
+    },
+  });
+
   return response.data;
 };
 

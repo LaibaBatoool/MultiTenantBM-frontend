@@ -37,6 +37,7 @@ import ResetPassword from './pages/ResetPassword';
 import TrialBalance from './pages/TrialBalance';
 import ProfitAndLoss from './pages/ProfitAndLoss';
 import BalanceSheet from './pages/BalanceSheet';
+import ExpensesForm from './pages/ExpensesForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -155,6 +156,14 @@ function AppRoutes() {
           element={
             <PermissionRoute permission="finance.expenses.view">
               <Expenses />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/expenses/add"
+          element={
+            <PermissionRoute permission="finance.expenses.view">
+              <ExpensesForm />
             </PermissionRoute>
           }
         />

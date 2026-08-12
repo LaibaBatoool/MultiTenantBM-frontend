@@ -12,6 +12,7 @@ import {
   Tag,
   Popconfirm,
   Spin,
+  Alert,
 } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -128,7 +129,18 @@ export default function JournalEntryForm() {
       (entry) => postingDateValue && postingDateValue >= entry.startDate && postingDateValue <= entry.endDate,
     );
 
+
     const nonEmptyRows = rows.filter((row) => row.accountId || row.debit || row.credit);
+    const accountSides = new Map<number, { debit: boolean; credit: boolean }>();
+    for (const row of nonEmptyRows) {
+      if (!row.accountId) continue;
+      const sides = accountSides.get(row.accountId) ?? { debit: false, credit: false };
+      if ((row.debit || 0) > 0) sides.debit = true;
+      if ((row.credit || 0) > 0) sides.credit = true;
+      accountSides.set(row.accountId, sides);
+    }
+    const conflictingAccountId = [...accountSides.entries()].find(([, sides]) => sides.debit && sides.credit)?.[0];
+
     const lineChecks = nonEmptyRows.map((row) => {
       const debit = row.debit || 0;
       const credit = row.credit || 0;
@@ -168,6 +180,8 @@ export default function JournalEntryForm() {
       reason = 'Every line must have a posting account';
     } else if (!everyLineHasSingleAmount) {
       reason = 'Each line must have either a debit or a credit';
+    } else if (conflictingAccountId) {
+      reason = 'Same account cannot be used for both debit and credit in one entry';
     } else if (!hasAtLeastOneDebitLine) {
       reason = 'At least 1 debit line is required';
     } else if (!hasAtLeastOneCreditLine) {
@@ -187,12 +201,14 @@ export default function JournalEntryForm() {
         allLinesComplete &&
         everyLineHasAccount &&
         everyLineHasSingleAmount &&
+        !conflictingAccountId &&
         hasAtLeastOneDebitLine &&
         hasAtLeastOneCreditLine &&
         totals.debit > 0 &&
         totals.credit > 0 &&
         totals.debit === totals.credit,
       reason,
+      conflictingAccountId,
     };
   }, [fiscalYears, postingDate, rows, totals.credit, totals.debit]);
 
@@ -287,6 +303,21 @@ export default function JournalEntryForm() {
         </div>
       </Card>
 
+      {validation.conflictingAccountId && (
+        <Alert
+          type="error"
+          showIcon
+          style={{ marginBottom: 12 }}
+          message={
+            (() => {
+              const account = accounts.find((a) => a.id === validation.conflictingAccountId);
+              const label = account ? `${account.code} — ${account.name}` : 'This account';
+              return `${label} cannot be entered on both the Debit and Credit sides in the same entry. Please change the account on one of the lines or remove that line.`;
+            })()
+          }
+        />
+      )}
+
       <Card size="small">
         <Table
           dataSource={rows}
@@ -348,16 +379,16 @@ export default function JournalEntryForm() {
             ...(isViewMode
               ? []
               : [
-                  {
-                    title: '',
-                    width: 50,
-                    render: (_: unknown, row: LineRow) => (
-                      <Popconfirm title="Remove this row?" onConfirm={() => removeRow(row.key)}>
-                        <Button icon={<DeleteOutlined />} danger type="text" disabled={rows.length <= 2} />
-                      </Popconfirm>
-                    ),
-                  },
-                ]),
+                {
+                  title: '',
+                  width: 50,
+                  render: (_: unknown, row: LineRow) => (
+                    <Popconfirm title="Remove this row?" onConfirm={() => removeRow(row.key)}>
+                      <Button icon={<DeleteOutlined />} danger type="text" disabled={rows.length <= 2} />
+                    </Popconfirm>
+                  ),
+                },
+              ]),
           ]}
         />
 
