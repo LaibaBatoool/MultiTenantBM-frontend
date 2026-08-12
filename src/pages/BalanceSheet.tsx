@@ -178,8 +178,8 @@ export default function BalanceSheet() {
                   </Row>
                 ))}
                 <Row style={{ padding: '2px 0 2px 8px' }}>
-                  <Col span={18}><Text italic>Total {section.name}</Text></Col>
-                  <Col span={6} style={{ textAlign: 'right' }}><Text italic>{section.total.toLocaleString()}</Text></Col>
+                  <Col span={18}><Text strong>Total {section.name}</Text></Col>
+                  <Col span={6} style={{ textAlign: 'right' }}><Text strong>{section.total.toLocaleString()}</Text></Col>
                 </Row>
               </div>
             ))}

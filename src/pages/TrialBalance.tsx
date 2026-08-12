@@ -164,30 +164,15 @@ export default function TrialBalance() {
         loadingFilters || loadingReport ? <Spin /> : null
       ) : (
         <>
-          <Card size="small" style={{ marginBottom: 16 }}>
-            <Row gutter={16}>
-              <Col span={5}>
-                <Statistic title="Total Accounts" value={result.totalAccounts} />
-              </Col>
-              <Col span={5}>
-                <Statistic title="Debit Balance" value={result.totalDebit} precision={2} />
-              </Col>
-              <Col span={5}>
-                <Statistic title="Credit Balance" value={result.totalCredit} precision={2} />
-              </Col>
-              <Col span={5}>
-                <Statistic title="Difference" value={result.difference} precision={2} />
-              </Col>
-              <Col span={4}>
-                <Text type="secondary" style={{ fontSize: 13 }}>Status</Text>
-                <div style={{ marginTop: 4 }}>
-                  <Tag color={result.isBalanced ? 'green' : 'red'}>
-                    {result.isBalanced ? 'Balanced' : 'Not Balanced'}
-                  </Tag>
-                </div>
-              </Col>
-            </Row>
-          </Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
+            <Text strong>Total Accounts: {result.totalAccounts}</Text>
+            <Text strong>Debit Balance: {result.totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            <Text strong>Credit Balance: {result.totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            <Text strong>Difference: {result.difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            <Text strong>
+              Status: <Tag color={result.isBalanced ? 'green' : 'red'} style={{ marginLeft: 4 }}>{result.isBalanced ? 'Balanced' : 'Not Balanced'}</Tag>
+            </Text>
+          </div>
 
           <Text type="secondary">
             {result.periodLabel || `As of ${result.asOfDate}`}
