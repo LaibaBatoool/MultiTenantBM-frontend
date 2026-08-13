@@ -1,12 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Row, Col } from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  Card,
+  message,
+  Typography,
+  Row,
+  Col,
+} from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { updateMyProfile } from '../api/auth';
-import FileUploadField, { type FileUploadFieldHandle } from '../components/FileUploadField';
+import FileUploadField, {
+  type FileUploadFieldHandle,
+} from '../components/FileUploadField';
 
 const { Title } = Typography;
 
 export default function EditProfile() {
+  const navigate = useNavigate();
+
   const { currentUser, refreshCurrentUser } = useAuth();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -18,14 +32,23 @@ export default function EditProfile() {
         fullName: currentUser.name,
         username: currentUser.username,
         email: currentUser.email,
-        profilePicture: currentUser.profilePic ? { url: currentUser.profilePic } : null,
+        profilePicture: currentUser.profilePic
+          ? { url: currentUser.profilePic }
+          : null,
       });
     }
   }, [currentUser]);
 
   const onFinish = async (values: any) => {
-    const { confirmPassword, profilePicture, username, ...rest } = values;
+    const {
+      confirmPassword,
+      profilePicture,
+      username,
+      ...rest
+    } = values;
+
     setLoading(true);
+
     try {
       await updateMyProfile({
         fullName: rest.fullName,
@@ -33,11 +56,21 @@ export default function EditProfile() {
         password: rest.password || undefined,
         profilePictureId: profilePicture?.id,
       });
+
       message.success('Profile updated');
-      form.setFieldsValue({ password: '', confirmPassword: '' });
+
+      form.setFieldsValue({
+        password: '',
+        confirmPassword: '',
+      });
+
       await refreshCurrentUser();
     } catch (error: any) {
-      message.error(error?.response?.data?.message?.[0] || error?.response?.data?.message || 'Failed to update profile');
+      message.error(
+        error?.response?.data?.message?.[0] ||
+          error?.response?.data?.message ||
+          'Failed to update profile',
+      );
     } finally {
       setLoading(false);
     }
@@ -59,8 +92,21 @@ export default function EditProfile() {
         <Title level={4} style={{ margin: 0 }}>
           Edit Profile
         </Title>
+
         <div>
-          <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: 8 }}>
+          <Button
+            htmlType="button"
+            onClick={() => navigate(-1)}
+            style={{ marginRight: 8 }}
+          >
+            Back
+          </Button>
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+          >
             Save
           </Button>
         </div>
@@ -69,21 +115,45 @@ export default function EditProfile() {
       <Row gutter={16}>
         <Col span={12}>
           <Card title="User Details" size="small">
-            <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Full name is required' }]}>
+            <Form.Item
+              label="Full Name"
+              name="fullName"
+              rules={[
+                {
+                  required: true,
+                  message: 'Full name is required',
+                },
+              ]}
+            >
               <Input placeholder="e.g. Sara Khan" />
             </Form.Item>
+
             <Form.Item
               label="Email"
               name="email"
               rules={[
-                { required: true, message: 'Email is required' },
-                { type: 'email', message: 'Enter a valid email' },
+                {
+                  required: true,
+                  message: 'Email is required',
+                },
+                {
+                  type: 'email',
+                  message: 'Enter a valid email',
+                },
               ]}
             >
               <Input placeholder="e.g. sara@example.com" />
             </Form.Item>
-            <Form.Item label="Profile Picture" name="profilePicture">
-              <FileUploadField ref={profilePicRef} variant="image" label="Upload Profile Picture" />
+
+            <Form.Item
+              label="Profile Picture"
+              name="profilePicture"
+            >
+              <FileUploadField
+                ref={profilePicRef}
+                variant="image"
+                label="Upload Profile Picture"
+              />
             </Form.Item>
           </Card>
         </Col>
@@ -99,11 +169,17 @@ export default function EditProfile() {
                 <Form.Item
                   label="New Password"
                   name="password"
-                  rules={[{ min: 6, message: 'Minimum 6 characters' }]}
+                  rules={[
+                    {
+                      min: 6,
+                      message: 'Minimum 6 characters',
+                    },
+                  ]}
                 >
                   <Input.Password placeholder="Leave blank to keep current" />
                 </Form.Item>
               </Col>
+
               <Col span={12}>
                 <Form.Item
                   label="Confirm Password"
@@ -113,9 +189,18 @@ export default function EditProfile() {
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         const pwd = getFieldValue('password');
-                        if (!pwd && !value) return Promise.resolve();
-                        if (pwd === value) return Promise.resolve();
-                        return Promise.reject(new Error('Passwords do not match'));
+
+                        if (!pwd && !value) {
+                          return Promise.resolve();
+                        }
+
+                        if (pwd === value) {
+                          return Promise.resolve();
+                        }
+
+                        return Promise.reject(
+                          new Error('Passwords do not match'),
+                        );
                       },
                     }),
                   ]}
