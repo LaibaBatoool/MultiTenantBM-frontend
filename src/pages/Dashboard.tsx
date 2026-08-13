@@ -273,6 +273,7 @@ function RevenueExpenseChart({
     return (
       <Card
         size="small"
+        hoverable
         title="Revenue vs Expenses"
         styles={{
           body: {
@@ -289,6 +290,7 @@ function RevenueExpenseChart({
     return (
       <Card
         size="small"
+        hoverable
         title="Revenue vs Expenses"
         styles={{
           body: {
@@ -359,6 +361,7 @@ function RevenueExpenseChart({
   return (
     <Card
       size="small"
+      hoverable
       title={
         <span style={{ fontWeight: 600 }}>
           Revenue vs Expenses
@@ -566,6 +569,7 @@ function ExpenseBreakdown({
   return (
     <Card
       size="small"
+      hoverable
       title={
         <span style={{ fontWeight: 600 }}>
           Expense Breakdown
@@ -694,6 +698,7 @@ function CashBankWidget({
   return (
     <Card
       size="small"
+      hoverable
       title={
         <span style={{ fontWeight: 600 }}>
           Cash & Bank
@@ -808,6 +813,7 @@ function RecentJournalEntries({
   return (
     <Card
       size="small"
+      hoverable
       title={
         <span style={{ fontWeight: 600 }}>
           Recent Journal Entries
@@ -1225,6 +1231,7 @@ export default function Dashboard() {
       {/* Header */}
 
       <div
+      
         style={{
           display: 'flex',
           justifyContent:
@@ -1503,6 +1510,7 @@ export default function Dashboard() {
         >
           <Card
             size="small"
+            hoverable
             title={
               <span
                 style={{
@@ -1533,6 +1541,9 @@ export default function Dashboard() {
                   block
                   size="small"
                   type="primary"
+                  style={{
+                    fontSize: 12,
+                  }}
                   icon={<PlusOutlined />}
                   onClick={() =>
                     navigate(
@@ -1549,7 +1560,9 @@ export default function Dashboard() {
                   block
                   size="small"
                   type="primary"
-
+                  style={{
+                    fontSize: 12,
+                  }}
                   icon={<PlusOutlined />}
                   onClick={() =>
                     navigate(
@@ -1566,10 +1579,10 @@ export default function Dashboard() {
                   block
                   size="small"
                   type="primary"
-
-                  icon={
-                    <FileTextOutlined />
-                  }
+                  style={{
+                    fontSize: 12,
+                  }}
+                  icon={ <FileTextOutlined />}
                   onClick={() =>
                     navigate(
                       '/reports/general-ledger',
@@ -1585,9 +1598,10 @@ export default function Dashboard() {
                   block
                   size="small"
                   type="primary"
-                  icon={
-                    <FileTextOutlined />
-                  }
+                  style={{
+                    fontSize: 12,
+                  }}
+                  icon={<FileTextOutlined />}
                   onClick={() =>
                     navigate(
                       '/reports/trial-balance',

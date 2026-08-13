@@ -114,25 +114,22 @@ export default function ExpensesForm() {
   };
 
   return (
-      <div>
+    <div>
       <div
-  style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  }}
->
-  <Title level={3} style={{ margin: 0 }}>
-    Add Expense
-  </Title>
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <Title level={3} style={{ margin: 0 }}>
+          Add Expense
+        </Title>
 
-  <Button
-    onClick={() => navigate('/finance/expenses')}
-  >
-    Back
-  </Button>
-</div>
+        <Button onClick={() => navigate(-1)}>Back</Button>
+
+      </div>
 
       <Card>
         <Form
@@ -286,7 +283,7 @@ export default function ExpensesForm() {
               gap: 8,
             }}
           >
-            <Button onClick={() => navigate('/finance/expenses')}>
+            <Button onClick={() => navigate(-1)}>
               Cancel
             </Button>
 
