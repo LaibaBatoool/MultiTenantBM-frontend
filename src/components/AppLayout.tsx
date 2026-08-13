@@ -41,6 +41,7 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+
 import {
   useNavigate,
   useLocation,
@@ -49,7 +50,7 @@ import {
 
 import type { MenuProps } from 'antd';
 
-const API_BASE = 'http://192.168.1.157:3000';
+import { SERVER_BASE } from '../constants/api';
 
 const { Header, Sider, Content } = Layout;
 
@@ -80,54 +81,53 @@ export default function AppLayout() {
   // ============================================================
 
   const menuLink = (text: string, path: string) => {
-  const link = (
-    <a
-      href={path}
-      onClick={(e) => {
-        if (
-          e.ctrlKey ||
-          e.metaKey ||
-          e.shiftKey ||
-          e.button !== 0
-        ) {
-          return;
-        }
+    const link = (
+      <a
+        href={path}
+        onClick={(e) => {
+          if (
+            e.ctrlKey ||
+            e.metaKey ||
+            e.shiftKey ||
+            e.button !== 0
+          ) {
+            return;
+          }
 
-        e.preventDefault();
-        e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
 
-        navigate(path);
-      }}
-      style={{
-        color: 'inherit',
-        textDecoration: 'none',
-        display: 'block',
-        width: '100%',
-      }}
-    >
-      {text}
-    </a>
-  );
+          navigate(path);
+        }}
+        style={{
+          color: 'inherit',
+          textDecoration: 'none',
+          display: 'block',
+          width: '100%',
+        }}
+      >
+        {text}
+      </a>
+    );
 
-  return (
-    <Tooltip title={text} placement="right">
-      {link}
-    </Tooltip>
-  );
-};
+    return (
+      <Tooltip title={text} placement="right">
+        {link}
+      </Tooltip>
+    );
+  };
 
   // ============================================================
   // GROUP LABEL
   // ============================================================
 
   const menuGroupLabel = (text: string) => {
-
-  return (
-    <Tooltip title={text} placement="right">
-      <span>{text}</span>
-    </Tooltip>
-  );
-};
+    return (
+      <Tooltip title={text} placement="right">
+        <span>{text}</span>
+      </Tooltip>
+    );
+  };
 
   // ============================================================
   // LOGOUT
@@ -221,7 +221,7 @@ export default function AppLayout() {
                 icon: <ApartmentOutlined />,
                 label: menuLink(
                   'Business Units',
-                  '/business-units'
+                  '/business-units',
                 ),
               },
             ]
@@ -236,7 +236,7 @@ export default function AppLayout() {
           icon: <DashboardOutlined />,
           label: menuLink(
             'Dashboard',
-            '/'
+            '/',
           ),
         },
 
@@ -261,7 +261,7 @@ export default function AppLayout() {
                     icon: <WalletOutlined />,
                     label: menuLink(
                       'Expenses',
-                      '/finance/expenses'
+                      '/finance/expenses',
                     ),
                   },
                 ]
@@ -276,7 +276,7 @@ export default function AppLayout() {
               icon: <FundOutlined />,
               label: menuLink(
                 'Opening Balances',
-                '/finance/opening-balances'
+                '/finance/opening-balances',
               ),
             },
 
@@ -285,7 +285,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'finance.journal-entries.view'
+              'finance.journal-entries.view',
             )
               ? [
                   {
@@ -293,7 +293,7 @@ export default function AppLayout() {
                     icon: <AuditOutlined />,
                     label: menuLink(
                       'Journal Entries',
-                      '/finance/journal-entries'
+                      '/finance/journal-entries',
                     ),
                   },
                 ]
@@ -308,7 +308,7 @@ export default function AppLayout() {
               icon: <DollarOutlined />,
               label: menuLink(
                 'Capital Contributions',
-                '/finance/capital-contributions'
+                '/finance/capital-contributions',
               ),
             },
 
@@ -317,7 +317,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'master-data.assets.view'
+              'master-data.assets.view',
             )
               ? [
                   {
@@ -325,7 +325,7 @@ export default function AppLayout() {
                     icon: <LaptopOutlined />,
                     label: menuLink(
                       'Assets',
-                      '/finance/assets'
+                      '/finance/assets',
                     ),
                   },
                 ]
@@ -352,7 +352,7 @@ export default function AppLayout() {
               icon: <PieChartOutlined />,
               label: menuLink(
                 'Expense Report',
-                '/reports/expense-report'
+                '/reports/expense-report',
               ),
             },
 
@@ -365,7 +365,7 @@ export default function AppLayout() {
               icon: <FundOutlined />,
               label: menuLink(
                 'Project Profitability',
-                '/reports/project-profitability'
+                '/reports/project-profitability',
               ),
             },
 
@@ -374,7 +374,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'finance.general-ledger.view'
+              'finance.general-ledger.view',
             )
               ? [
                   {
@@ -382,7 +382,7 @@ export default function AppLayout() {
                     icon: <FileTextOutlined />,
                     label: menuLink(
                       'General Ledger',
-                      '/reports/general-ledger'
+                      '/reports/general-ledger',
                     ),
                   },
                 ]
@@ -393,7 +393,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'finance.profit-loss.view'
+              'finance.profit-loss.view',
             )
               ? [
                   {
@@ -401,7 +401,7 @@ export default function AppLayout() {
                     icon: <BarChartOutlined />,
                     label: menuLink(
                       'Profit & Loss',
-                      '/reports/profit-loss'
+                      '/reports/profit-loss',
                     ),
                   },
                 ]
@@ -412,7 +412,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'finance.trial-balance.view'
+              'finance.trial-balance.view',
             )
               ? [
                   {
@@ -420,7 +420,7 @@ export default function AppLayout() {
                     icon: <AuditOutlined />,
                     label: menuLink(
                       'Trial Balance',
-                      '/reports/trial-balance'
+                      '/reports/trial-balance',
                     ),
                   },
                 ]
@@ -431,7 +431,7 @@ export default function AppLayout() {
             // ----------------------------------------------------
 
             ...(hasPermission(
-              'finance.balance-sheet.view'
+              'finance.balance-sheet.view',
             )
               ? [
                   {
@@ -439,7 +439,7 @@ export default function AppLayout() {
                     icon: <PieChartOutlined />,
                     label: menuLink(
                       'Balance Sheet',
-                      '/reports/balance-sheet'
+                      '/reports/balance-sheet',
                     ),
                   },
                 ]
@@ -464,7 +464,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'staff.users.view'
+                    'staff.users.view',
                   )
                     ? [
                         {
@@ -472,7 +472,7 @@ export default function AppLayout() {
                           icon: <UsergroupAddOutlined />,
                           label: menuLink(
                             'Users',
-                            '/staff/users'
+                            '/staff/users',
                           ),
                         },
                       ]
@@ -483,7 +483,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'staff.roles.view'
+                    'staff.roles.view',
                   )
                     ? [
                         {
@@ -493,7 +493,7 @@ export default function AppLayout() {
                           ),
                           label: menuLink(
                             'Roles',
-                            '/staff/roles'
+                            '/staff/roles',
                           ),
                         },
                       ]
@@ -513,7 +513,7 @@ export default function AppLayout() {
                 key: 'master-data-group',
                 icon: <ShopOutlined />,
                 label: menuGroupLabel(
-                  'Master Data'
+                  'Master Data',
                 ),
 
                 children: [
@@ -522,7 +522,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.vendor.view'
+                    'master-data.vendor.view',
                   )
                     ? [
                         {
@@ -530,7 +530,7 @@ export default function AppLayout() {
                           icon: <TeamOutlined />,
                           label: menuLink(
                             'Vendor',
-                            '/master-data/vendor'
+                            '/master-data/vendor',
                           ),
                         },
                       ]
@@ -541,7 +541,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.supplier.view'
+                    'master-data.supplier.view',
                   )
                     ? [
                         {
@@ -549,7 +549,7 @@ export default function AppLayout() {
                           icon: <ShoppingOutlined />,
                           label: menuLink(
                             'Supplier',
-                            '/master-data/supplier'
+                            '/master-data/supplier',
                           ),
                         },
                       ]
@@ -560,7 +560,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.contractor.view'
+                    'master-data.contractor.view',
                   )
                     ? [
                         {
@@ -568,7 +568,7 @@ export default function AppLayout() {
                           icon: <ToolOutlined />,
                           label: menuLink(
                             'Contractor',
-                            '/master-data/contractor'
+                            '/master-data/contractor',
                           ),
                         },
                       ]
@@ -579,7 +579,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.consultant.view'
+                    'master-data.consultant.view',
                   )
                     ? [
                         {
@@ -587,7 +587,7 @@ export default function AppLayout() {
                           icon: <SolutionOutlined />,
                           label: menuLink(
                             'Consultant',
-                            '/master-data/consultant'
+                            '/master-data/consultant',
                           ),
                         },
                       ]
@@ -598,7 +598,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.customer.view'
+                    'master-data.customer.view',
                   )
                     ? [
                         {
@@ -606,7 +606,7 @@ export default function AppLayout() {
                           icon: <SmileOutlined />,
                           label: menuLink(
                             'Customer',
-                            '/master-data/customer'
+                            '/master-data/customer',
                           ),
                         },
                       ]
@@ -621,7 +621,7 @@ export default function AppLayout() {
                     icon: <ProjectOutlined />,
                     label: menuLink(
                       'Projects',
-                      '/master-data/projects'
+                      '/master-data/projects',
                     ),
                   },
 
@@ -630,7 +630,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.employees.view'
+                    'master-data.employees.view',
                   )
                     ? [
                         {
@@ -638,7 +638,7 @@ export default function AppLayout() {
                           icon: <IdcardOutlined />,
                           label: menuLink(
                             'Employees',
-                            '/master-data/employees'
+                            '/master-data/employees',
                           ),
                         },
                       ]
@@ -649,7 +649,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.expense-types.view'
+                    'master-data.expense-types.view',
                   )
                     ? [
                         {
@@ -657,7 +657,7 @@ export default function AppLayout() {
                           icon: <TagsOutlined />,
                           label: menuLink(
                             'Expense Types',
-                            '/master-data/expense-types'
+                            '/master-data/expense-types',
                           ),
                         },
                       ]
@@ -668,7 +668,7 @@ export default function AppLayout() {
                   // ------------------------------------------------
 
                   ...(hasPermission(
-                    'master-data.bank-accounts.view'
+                    'master-data.bank-accounts.view',
                   )
                     ? [
                         {
@@ -676,7 +676,7 @@ export default function AppLayout() {
                           icon: <BankOutlined />,
                           label: menuLink(
                             'Bank Accounts',
-                            '/master-data/bank-accounts'
+                            '/master-data/bank-accounts',
                           ),
                         },
                       ]
@@ -696,7 +696,7 @@ export default function AppLayout() {
           icon: <ApartmentOutlined />,
           label: menuLink(
             'Business Units',
-            '/business-units'
+            '/business-units',
           ),
         },
       ];
@@ -774,7 +774,6 @@ export default function AppLayout() {
             ]}
             items={menuItems}
             onClick={({ key }) => {
-              
               if (
                 key === 'staff-group' ||
                 key === 'master-data-group' ||
@@ -783,8 +782,6 @@ export default function AppLayout() {
               ) {
                 return;
               }
-
-              
 
               if (key === '/business-units') {
                 clearSelectedBusinessUnit();
@@ -849,7 +846,7 @@ export default function AppLayout() {
               }}
               src={
                 currentUser?.profilePic
-                  ? `${API_BASE}${currentUser.profilePic}`
+                  ? `${SERVER_BASE}${currentUser.profilePic}`
                   : undefined
               }
               icon={

@@ -1,7 +1,12 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { Upload, Button, message, Image } from 'antd';
-import { UploadOutlined, FileOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  UploadOutlined,
+  FileOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import { uploadFile, deleteFile, type UploadedFile } from '../api/files';
+import { SERVER_BASE } from '../constants/api';
 
 interface FileUploadFieldProps {
   value?: UploadedFile | null;
@@ -14,71 +19,86 @@ export interface FileUploadFieldHandle {
   discardUnsavedUpload: () => void;
 }
 
-const API_BASE = 'http://192.168.1.157:3000';
-//const API_BASE = 'http://192.168.10.21:3000';
+const FileUploadField = forwardRef<
+  FileUploadFieldHandle,
+  FileUploadFieldProps
+>(({ value, onChange, variant = 'document', label }, ref) => {
+  const [loading, setLoading] = useState(false);
 
-const FileUploadField = forwardRef<FileUploadFieldHandle, FileUploadFieldProps>(
-  ({ value, onChange, variant = 'document', label }, ref) => {
-    const [loading, setLoading] = useState(false);
+  const freshlyUploadedUrl = useRef<string | null>(null);
 
-    const freshlyUploadedUrl = useRef<string | null>(null);
+  const handleBeforeUpload = async (file: File) => {
+    setLoading(true);
 
-    const handleBeforeUpload = async (file: File) => {
-      setLoading(true);
-      try {
-        const uploaded = await uploadFile(file);
+    try {
+      const uploaded = await uploadFile(file);
 
-        if (freshlyUploadedUrl.current) {
-          deleteFile(freshlyUploadedUrl.current).catch(() => {});
-        }
-
-        freshlyUploadedUrl.current = uploaded.url;
-        onChange?.(uploaded);
-        message.success('File uploaded');
-      } catch (error) {
-        message.error('Upload failed');
-      } finally {
-        setLoading(false);
+      if (freshlyUploadedUrl.current) {
+        deleteFile(freshlyUploadedUrl.current).catch(() => {});
       }
-      return false;
-    };
 
-    useImperativeHandle(ref, () => ({
-      discardUnsavedUpload: () => {
-        if (freshlyUploadedUrl.current) {
-          deleteFile(freshlyUploadedUrl.current).catch(() => {});
-          freshlyUploadedUrl.current = null;
-        }
-      },
-    }));
+      freshlyUploadedUrl.current = uploaded.url;
+      onChange?.(uploaded);
 
-    return (
-      <div>
-        <Upload
-          accept={variant === 'image' ? 'image/*' : '.pdf,.docx,.xlsx'}
-          showUploadList={false}
-          beforeUpload={handleBeforeUpload}
+      message.success('File uploaded');
+    } catch (error) {
+      message.error('Upload failed');
+    } finally {
+      setLoading(false);
+    }
+
+    return false;
+  };
+
+  useImperativeHandle(ref, () => ({
+    discardUnsavedUpload: () => {
+      if (freshlyUploadedUrl.current) {
+        deleteFile(freshlyUploadedUrl.current).catch(() => {});
+        freshlyUploadedUrl.current = null;
+      }
+    },
+  }));
+
+  return (
+    <div>
+      <Upload
+        accept={variant === 'image' ? 'image/*' : '.pdf,.docx,.xlsx'}
+        showUploadList={false}
+        beforeUpload={handleBeforeUpload}
+      >
+        <Button
+          icon={loading ? <LoadingOutlined /> : <UploadOutlined />}
+          loading={loading}
         >
-          <Button icon={loading ? <LoadingOutlined /> : <UploadOutlined />} loading={loading}>
-            {label || (variant === 'image' ? 'Upload Image' : 'Upload File')}
-          </Button>
-        </Upload>
+          {label ||
+            (variant === 'image' ? 'Upload Image' : 'Upload File')}
+        </Button>
+      </Upload>
 
-        {variant === 'image' && value?.url && (
-          <div style={{ marginTop: 8 }}>
-            <Image src={`${API_BASE}${value.url}`} width={80} />
-          </div>
-        )}
+      {variant === 'image' && value?.url && (
+        <div style={{ marginTop: 8 }}>
+          <Image
+            src={`${SERVER_BASE}${value.url}`}
+            width={80}
+          />
+        </div>
+      )}
 
-        {variant === 'document' && value?.originalName && (
-          <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <FileOutlined />
-            <span>{value.originalName}</span>
-          </div>
-        )}
-      </div>
-    );
-  },
-);
+      {variant === 'document' && value?.originalName && (
+        <div
+          style={{
+            marginTop: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <FileOutlined />
+          <span>{value.originalName}</span>
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default FileUploadField;

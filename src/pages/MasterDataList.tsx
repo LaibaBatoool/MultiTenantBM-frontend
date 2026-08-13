@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Typography, message, Select, Space, Switch } from 'antd';
+import {
+  Table,
+  Button,
+  Typography,
+  message,
+  Select,
+  Space,
+  Switch,
+  Avatar,
+} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getCompaniesByType, toggleCompanyActive, type CompanyRecord } from '../api/companies';
+import {
+  getCompaniesByType,
+  toggleCompanyActive,
+  type CompanyRecord,
+} from '../api/companies';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
-import { Avatar } from 'antd';
-
-const API_BASE = 'http://192.168.1.157:3000';
-//const API_BASE = 'http://192.168.10.21:3000';
+import { SERVER_BASE } from '../constants/api';
 
 const { Title } = Typography;
 
@@ -26,6 +36,7 @@ export default function MasterDataList() {
   const navigate = useNavigate();
   const { selectedBusinessUnit } = useBusinessUnit();
   const { hasPermission } = useAuth();
+
   const [data, setData] = useState<CompanyRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
@@ -37,9 +48,16 @@ export default function MasterDataList() {
       setData([]);
       return;
     }
+
     setLoading(true);
+
     try {
-      const companies = await getCompaniesByType(type, selectedBusinessUnit.id, status);
+      const companies = await getCompaniesByType(
+        type,
+        selectedBusinessUnit.id,
+        status,
+      );
+
       setData(companies);
     } catch (error) {
       message.error(`Failed to load ${label}`);
@@ -54,6 +72,7 @@ export default function MasterDataList() {
 
   const handleToggle = async (id: number) => {
     if (!type) return;
+
     try {
       await toggleCompanyActive(type, id);
       message.success('Status updated');
@@ -73,7 +92,11 @@ export default function MasterDataList() {
       render: (_: unknown, record: CompanyRecord) => (
         <Avatar
           shape="circle"
-          src={record.logo ? `${API_BASE}${record.logo}` : undefined}
+          src={
+            record.logo
+              ? `${SERVER_BASE}${record.logo}`
+              : undefined
+          }
         />
       ),
     },
@@ -85,17 +108,41 @@ export default function MasterDataList() {
         status === 'inactive' ? (
           <span>{text}</span>
         ) : (
-          <a onClick={() => navigate(`/master-data/${type}/${record.id}/edit`)}>{text}</a>
+          <a
+            onClick={() =>
+              navigate(
+                `/master-data/${type}/${record.id}/edit`,
+              )
+            }
+          >
+            {text}
+          </a>
         ),
     },
-    { title: 'Email', dataIndex: 'email', key: 'email', render: (v: string | null) => v || '' },
-    { title: 'Phone', dataIndex: 'phone', key: 'phone', render: (v: string | null) => v || '' },
-    { title: 'Address', dataIndex: 'address', key: 'address', render: (v: string | null) => v || '' },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (v: string | null) => v || '',
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
+      render: (v: string | null) => v || '',
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+      render: (v: string | null) => v || '',
+    },
     {
       title: 'Contact Person Name',
       dataIndex: 'admin',
       key: 'admin',
-      render: (admin: CompanyRecord['admin']) => admin?.fullName || '',
+      render: (admin: CompanyRecord['admin']) =>
+        admin?.fullName || '',
     },
     {
       title: 'Created At',
@@ -107,7 +154,8 @@ export default function MasterDataList() {
       title: 'Created By',
       dataIndex: 'createdByUser',
       key: 'createdBy',
-      render: (user: CompanyRecord['createdByUser']) => user?.username || '',
+      render: (user: CompanyRecord['createdByUser']) =>
+        user?.username || '',
     },
     {
       title: 'Modified At',
@@ -119,14 +167,18 @@ export default function MasterDataList() {
       title: 'Modified By',
       dataIndex: 'updatedByUser',
       key: 'updatedBy',
-      render: (user: CompanyRecord['updatedByUser']) => user?.username || '',
+      render: (user: CompanyRecord['updatedByUser']) =>
+        user?.username || '',
     },
     {
       title: 'Active',
       key: 'actions',
       render: (_: unknown, record: CompanyRecord) =>
         hasPermission(`${permPrefix}.edit`) ? (
-          <Switch checked={record.isActive} onChange={() => handleToggle(record.id)} />
+          <Switch
+            checked={record.isActive}
+            onChange={() => handleToggle(record.id)}
+          />
         ) : (
           <span>{record.isActive ? 'Yes' : 'No'}</span>
         ),
@@ -135,12 +187,26 @@ export default function MasterDataList() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
         <Title level={3} style={{ margin: 0 }}>
           {label} ({data.length})
         </Title>
+
         {hasPermission(`${permPrefix}.add`) && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(`/master-data/${type}/new`)}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() =>
+              navigate(`/master-data/${type}/new`)
+            }
+          >
             Add New
           </Button>
         )}
@@ -158,7 +224,13 @@ export default function MasterDataList() {
         />
       </Space>
 
-      <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 }

@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Typography, message, Select, Space, Switch } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Typography,
+  message,
+  Select,
+  Space,
+  Switch,
+  Avatar,
+} from 'antd';
+import {
+  PlusOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getEmployees, toggleEmployeeActive, type Employee } from '../api/employees';
+import {
+  getEmployees,
+  toggleEmployeeActive,
+  type Employee,
+} from '../api/employees';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
-import { Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-
-const API_BASE = 'http://192.168.1.157:3000';
-//const API_BASE = 'http://192.168.10.21:3000';
+import { SERVER_BASE } from '../constants/api';
 
 const { Title } = Typography;
 
@@ -17,6 +29,7 @@ export default function Employees() {
   const navigate = useNavigate();
   const { selectedBusinessUnit } = useBusinessUnit();
   const { hasPermission } = useAuth();
+
   const [data, setData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
@@ -26,9 +39,15 @@ export default function Employees() {
       setData([]);
       return;
     }
+
     setLoading(true);
+
     try {
-      const employees = await getEmployees(selectedBusinessUnit.id, status);
+      const employees = await getEmployees(
+        selectedBusinessUnit.id,
+        status,
+      );
+
       setData(employees);
     } catch (error) {
       message.error('Failed to load employees');
@@ -43,7 +62,11 @@ export default function Employees() {
 
   const handleToggle = async (id: number) => {
     try {
-      await toggleEmployeeActive(id, selectedBusinessUnit?.id);
+      await toggleEmployeeActive(
+        id,
+        selectedBusinessUnit?.id,
+      );
+
       message.success('Status updated');
       fetchData();
     } catch (error) {
@@ -58,8 +81,16 @@ export default function Employees() {
       width: 60,
       render: (_: unknown, record: Employee) => (
         <Avatar
-          src={record.user?.profilePicture ? `${API_BASE}${record.user.profilePicture}` : undefined}
-          icon={!record.user?.profilePicture ? <UserOutlined /> : undefined}
+          src={
+            record.user?.profilePicture
+              ? `${SERVER_BASE}${record.user.profilePicture}`
+              : undefined
+          }
+          icon={
+            !record.user?.profilePicture ? (
+              <UserOutlined />
+            ) : undefined
+          }
         />
       ),
     },
@@ -68,21 +99,52 @@ export default function Employees() {
       key: 'fullName',
       render: (_: unknown, record: Employee) =>
         status === 'active' ? (
-          <a onClick={() => navigate(`/master-data/employees/${record.id}/edit`)}>{record.user?.fullName}</a>
+          <a
+            onClick={() =>
+              navigate(
+                `/master-data/employees/${record.id}/edit`,
+              )
+            }
+          >
+            {record.user?.fullName}
+          </a>
         ) : (
           <span>{record.user?.fullName}</span>
         ),
     },
-    { title: 'Username', key: 'username', render: (_: unknown, record: Employee) => record.user?.username },
-    { title: 'Email', key: 'email', render: (_: unknown, record: Employee) => record.user?.email },
-    { title: 'Designation', dataIndex: 'designation', key: 'designation', render: (v: string | null) => v || '' },
-    { title: 'Department', dataIndex: 'department', key: 'department', render: (v: string | null) => v || '' },
+    {
+      title: 'Username',
+      key: 'username',
+      render: (_: unknown, record: Employee) =>
+        record.user?.username,
+    },
+    {
+      title: 'Email',
+      key: 'email',
+      render: (_: unknown, record: Employee) =>
+        record.user?.email,
+    },
+    {
+      title: 'Designation',
+      dataIndex: 'designation',
+      key: 'designation',
+      render: (v: string | null) => v || '',
+    },
+    {
+      title: 'Department',
+      dataIndex: 'department',
+      key: 'department',
+      render: (v: string | null) => v || '',
+    },
     {
       title: 'Active',
       key: 'active',
       render: (_: unknown, record: Employee) =>
         hasPermission('master-data.employees.edit') ? (
-          <Switch checked={record.isActive} onChange={() => handleToggle(record.id)} />
+          <Switch
+            checked={record.isActive}
+            onChange={() => handleToggle(record.id)}
+          />
         ) : (
           <span>{record.isActive ? 'Yes' : 'No'}</span>
         ),
@@ -91,12 +153,26 @@ export default function Employees() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
         <Title level={3} style={{ margin: 0 }}>
           Employees ({data.length})
         </Title>
+
         {hasPermission('master-data.employees.add') && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/master-data/employees/new')}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() =>
+              navigate('/master-data/employees/new')
+            }
+          >
             Add New
           </Button>
         )}
@@ -114,7 +190,13 @@ export default function Employees() {
         />
       </Space>
 
-      <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 }

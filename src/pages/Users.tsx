@@ -1,20 +1,33 @@
 import { useEffect, useState } from 'react';
-import { Table, Typography, message, Button, Popconfirm, Select, Space, Avatar } from 'antd';
-import { PlusOutlined, StopOutlined, CheckCircleOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Typography,
+  message,
+  Button,
+  Select,
+  Space,
+  Avatar,
+  Switch,
+} from 'antd';
+import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getStaff, deactivateStaff, restoreStaff, type Staff } from '../api/staff';
+import {
+  getStaff,
+  deactivateStaff,
+  restoreStaff,
+  type Staff,
+} from '../api/staff';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
-import { Switch } from 'antd';
+import { SERVER_BASE } from '../constants/api';
 
 const { Title } = Typography;
-const API_BASE = 'http://192.168.1.157:3000';
-//const API_BASE = 'http://192.168.10.21:3000';
 
 export default function Users() {
   const navigate = useNavigate();
   const { selectedBusinessUnit } = useBusinessUnit();
   const { hasPermission } = useAuth();
+
   const [data, setData] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
@@ -28,9 +41,17 @@ export default function Users() {
       setData([]);
       return;
     }
+
     setLoading(true);
+
     try {
-      const result = await getStaff(selectedBusinessUnit.id, status, page, pageSize);
+      const result = await getStaff(
+        selectedBusinessUnit.id,
+        status,
+        page,
+        pageSize,
+      );
+
       setData(result.staff);
       setTotal(result.total);
     } catch (error) {
@@ -71,12 +92,22 @@ export default function Users() {
       width: 60,
       render: (_: unknown, record: Staff) => (
         <Avatar
-          src={record.profilePicture ? `${API_BASE}${record.profilePicture}` : undefined}
-          icon={!record.profilePicture ? <UserOutlined /> : undefined}
+          src={
+            record.profilePicture
+              ? `${SERVER_BASE}${record.profilePicture}`
+              : undefined
+          }
+          icon={
+            !record.profilePicture ? <UserOutlined /> : undefined
+          }
         />
       ),
     },
-    { title: 'Full Name', dataIndex: 'fullName', key: 'fullName' },
+    {
+      title: 'Full Name',
+      dataIndex: 'fullName',
+      key: 'fullName',
+    },
     {
       title: 'Username',
       dataIndex: 'username',
@@ -85,16 +116,28 @@ export default function Users() {
         status === 'inactive' ? (
           <span>{text}</span>
         ) : (
-          <a onClick={() => navigate(`/staff/users/${record.id}/edit`)}>{text}</a>
+          <a
+            onClick={() =>
+              navigate(`/staff/users/${record.id}/edit`)
+            }
+          >
+            {text}
+          </a>
         ),
     },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
     {
       title: 'Active',
       key: 'actions',
       render: (_: unknown, record: Staff) => {
         const canToggle =
-          status === 'active' ? hasPermission('staff.users.delete') : hasPermission('staff.users.edit');
+          status === 'active'
+            ? hasPermission('staff.users.delete')
+            : hasPermission('staff.users.edit');
 
         if (!canToggle) return null;
 
@@ -116,12 +159,24 @@ export default function Users() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
         <Title level={3} style={{ margin: 0 }}>
           Users ({data.length})
         </Title>
+
         {hasPermission('staff.users.add') && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/staff/users/new')}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/staff/users/new')}
+          >
             Add New
           </Button>
         )}
@@ -153,6 +208,7 @@ export default function Users() {
             setPageSize(ps);
           },
         }}
-      />    </div>
+      />
+    </div>
   );
 }
