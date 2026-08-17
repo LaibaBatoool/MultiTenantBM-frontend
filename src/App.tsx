@@ -23,7 +23,6 @@ import ExpenseTypesPage from './pages/ExpenseTypesPage';
 import BankAccounts from './pages/BankAccounts';
 import Expenses from './pages/Expenses';
 import OpeningBalances from './pages/OpeningBalances';
-import CapitalContributions from './pages/CapitalContributions';
 import ExpenseReport from './pages/ExpenseReport';
 import ProjectProfitability from './pages/ProjectProfitability';
 import GeneralLedger from './pages/GeneralLedger';
@@ -38,6 +37,16 @@ import TrialBalance from './pages/TrialBalance';
 import ProfitAndLoss from './pages/ProfitAndLoss';
 import BalanceSheet from './pages/BalanceSheet';
 import ExpensesForm from './pages/ExpensesForm';
+import Payments from './pages/Payments';
+import PaymentsForm from './pages/PaymentsForm';
+import Receipts from './pages/Receipts';
+import ReceiptsForm from './pages/ReceiptsForm';
+import Transfers from './pages/Transfers';
+import TransfersForm from './pages/TransfersForm';
+import Accounts from './pages/Accounts';
+import AccountForm from './pages/AccountForm';
+import CapitalContributions from './pages/CapitalContributions';
+import CapitalContributionForm from './pages/CapitalContributionForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -152,6 +161,22 @@ function AppRoutes() {
         <Route path="master-data/expense-types" element={<ExpenseTypesPage />} />
         <Route path="master-data/bank-accounts" element={<BankAccounts />} />
         <Route
+          path="master-data/accounts"
+          element={
+            <PermissionRoute permission="master-data.accounts.view">
+              <Accounts />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="master-data/accounts/add"
+          element={
+            <PermissionRoute permission="master-data.accounts.add">
+              <AccountForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
           path="finance/expenses"
           element={
             <PermissionRoute permission="finance.expenses.view">
@@ -164,6 +189,54 @@ function AppRoutes() {
           element={
             <PermissionRoute permission="finance.expenses.view">
               <ExpensesForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/payments"
+          element={
+            <PermissionRoute permission="finance.cash-bank.payments.view">
+              <Payments />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/payments/add"
+          element={
+            <PermissionRoute permission="finance.cash-bank.payments.add">
+              <PaymentsForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/receipts"
+          element={
+            <PermissionRoute permission="finance.cash-bank.receipts.view">
+              <Receipts />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/receipts/add"
+          element={
+            <PermissionRoute permission="finance.cash-bank.receipts.add">
+              <ReceiptsForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/transfers"
+          element={
+            <PermissionRoute permission="finance.cash-bank.transfers.view">
+              <Transfers />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/cash-bank/transfers/add"
+          element={
+            <PermissionRoute permission="finance.cash-bank.transfers.add">
+              <TransfersForm />
             </PermissionRoute>
           }
         />
@@ -192,8 +265,22 @@ function AppRoutes() {
             </PermissionRoute>
           }
         />
-        <Route path="finance/capital-contributions" element={<CapitalContributions />} />
-        <Route path="finance/assets" element={<Assets />} />
+        <Route
+          path="finance/capital-contributions"
+          element={
+            <PermissionRoute permission="finance.capital-contributions.view">
+              <CapitalContributions />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/capital-contributions/add"
+          element={
+            <PermissionRoute permission="finance.capital-contributions.add">
+              <CapitalContributionForm />
+            </PermissionRoute>
+          }
+        />        <Route path="finance/assets" element={<Assets />} />
         <Route path="finance/assets/new" element={<AssetForm />} />
         <Route path="finance/assets/:id/edit" element={<AssetForm />} />
         <Route path="reports/expense-report" element={<ExpenseReport />} />

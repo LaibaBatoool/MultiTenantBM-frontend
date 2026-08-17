@@ -194,7 +194,8 @@ export default function AppLayout() {
     hasPermission('master-data.employees.view') ||
     hasPermission('master-data.assets.view') ||
     hasPermission('master-data.expense-types.view') ||
-    hasPermission('master-data.bank-accounts.view');
+    hasPermission('master-data.bank-accounts.view') ||
+    hasPermission('master-data.accounts.view');
 
   // ============================================================
   // STAFF PERMISSION
@@ -210,496 +211,554 @@ export default function AppLayout() {
 
   const menuItems: MenuProps['items'] = selectedBusinessUnit
     ? [
-        // ========================================================
-        // BUSINESS UNITS
-        // ========================================================
+      // ========================================================
+      // BUSINESS UNITS
+      // ========================================================
 
-        ...(isSuperadmin
-          ? [
+      ...(isSuperadmin
+        ? [
+          {
+            key: '/business-units',
+            icon: <ApartmentOutlined />,
+            label: menuLink(
+              'Business Units',
+              '/business-units',
+            ),
+          },
+        ]
+        : []),
+
+      // ========================================================
+      // DASHBOARD
+      // ========================================================
+
+      {
+        key: '/',
+        icon: <DashboardOutlined />,
+        label: menuLink(
+          'Dashboard',
+          '/',
+        ),
+      },
+
+      // ========================================================
+      // FINANCE
+      // ========================================================
+
+      {
+        key: 'finance-group',
+        icon: <DollarOutlined />,
+        label: menuGroupLabel('Finance'),
+
+        children: [
+          // ----------------------------------------------------
+          // Expenses
+          // ----------------------------------------------------
+
+          ...(hasPermission('finance.expenses.view')
+            ? [
               {
-                key: '/business-units',
-                icon: <ApartmentOutlined />,
+                key: '/finance/expenses',
+                icon: <WalletOutlined />,
                 label: menuLink(
-                  'Business Units',
-                  '/business-units',
+                  'Expenses',
+                  '/finance/expenses',
                 ),
               },
             ]
-          : []),
+            : []),
 
-        // ========================================================
-        // DASHBOARD
-        // ========================================================
+          // ----------------------------------------------------
+          // Cash and Bank
+          // ----------------------------------------------------
 
-        {
-          key: '/',
-          icon: <DashboardOutlined />,
-          label: menuLink(
-            'Dashboard',
-            '/',
-          ),
-        },
-
-        // ========================================================
-        // FINANCE
-        // ========================================================
-
-        {
-          key: 'finance-group',
-          icon: <DollarOutlined />,
-          label: menuGroupLabel('Finance'),
-
-          children: [
-            // ----------------------------------------------------
-            // Expenses
-            // ----------------------------------------------------
-
-            ...(hasPermission('finance.expenses.view')
-              ? [
+          {
+            key: 'cash-bank-group',
+            icon: <BankOutlined />,
+            label: menuGroupLabel('Cash & Bank'),
+            children: [
+              ...(hasPermission('finance.cash-bank.payments.view')
+                ? [
                   {
-                    key: '/finance/expenses',
+                    key: '/finance/cash-bank/payments',
                     icon: <WalletOutlined />,
-                    label: menuLink(
-                      'Expenses',
-                      '/finance/expenses',
-                    ),
+                    label: menuLink('Payments', '/finance/cash-bank/payments'),
                   },
                 ]
-              : []),
-
-            // ----------------------------------------------------
-            // Opening Balances
-            // ----------------------------------------------------
-
-            {
-              key: '/finance/opening-balances',
-              icon: <FundOutlined />,
-              label: menuLink(
-                'Opening Balances',
-                '/finance/opening-balances',
-              ),
-            },
-
-            // ----------------------------------------------------
-            // Journal Entries
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'finance.journal-entries.view',
-            )
-              ? [
+                : []),
+              ...(hasPermission('finance.cash-bank.receipts.view')
+                ? [
                   {
-                    key: '/finance/journal-entries',
-                    icon: <AuditOutlined />,
-                    label: menuLink(
-                      'Journal Entries',
-                      '/finance/journal-entries',
-                    ),
+                    key: '/finance/cash-bank/receipts',
+                    icon: <DollarOutlined />,
+                    label: menuLink('Receipts', '/finance/cash-bank/receipts'),
                   },
                 ]
-              : []),
-
-            // ----------------------------------------------------
-            // Capital Contributions
-            // ----------------------------------------------------
-
-            {
-              key: '/finance/capital-contributions',
-              icon: <DollarOutlined />,
-              label: menuLink(
-                'Capital Contributions',
-                '/finance/capital-contributions',
-              ),
-            },
-
-            // ----------------------------------------------------
-            // Assets
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'master-data.assets.view',
-            )
-              ? [
+                : []),
+              ...(hasPermission('finance.cash-bank.transfers.view')
+                ? [
                   {
-                    key: '/finance/assets',
-                    icon: <LaptopOutlined />,
-                    label: menuLink(
-                      'Assets',
-                      '/finance/assets',
-                    ),
+                    key: '/finance/cash-bank/transfers',
+                    icon: <FundOutlined />,
+                    label: menuLink('Transfers', '/finance/cash-bank/transfers'),
                   },
                 ]
-              : []),
-          ],
-        },
+                : []),
+            ],
+          },
 
-        // ========================================================
-        // REPORTS
-        // ========================================================
+          // ----------------------------------------------------
+          // Opening Balances
+          // ----------------------------------------------------
 
-        {
-          key: 'reports-group',
-          icon: <BarChartOutlined />,
-          label: menuGroupLabel('Reports'),
+          {
+            key: '/finance/opening-balances',
+            icon: <FundOutlined />,
+            label: menuLink(
+              'Opening Balances',
+              '/finance/opening-balances',
+            ),
+          },
 
-          children: [
-            // ----------------------------------------------------
-            // Expense Report
-            // ----------------------------------------------------
+          // ----------------------------------------------------
+          // Journal Entries
+          // ----------------------------------------------------
 
-            {
-              key: '/reports/expense-report',
-              icon: <PieChartOutlined />,
-              label: menuLink(
-                'Expense Report',
-                '/reports/expense-report',
-              ),
-            },
-
-            // ----------------------------------------------------
-            // Project Profitability
-            // ----------------------------------------------------
-
-            {
-              key: '/reports/project-profitability',
-              icon: <FundOutlined />,
-              label: menuLink(
-                'Project Profitability',
-                '/reports/project-profitability',
-              ),
-            },
-
-            // ----------------------------------------------------
-            // General Ledger
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'finance.general-ledger.view',
-            )
-              ? [
-                  {
-                    key: '/reports/general-ledger',
-                    icon: <FileTextOutlined />,
-                    label: menuLink(
-                      'General Ledger',
-                      '/reports/general-ledger',
-                    ),
-                  },
-                ]
-              : []),
-
-            // ----------------------------------------------------
-            // Profit & Loss
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'finance.profit-loss.view',
-            )
-              ? [
-                  {
-                    key: '/reports/profit-loss',
-                    icon: <BarChartOutlined />,
-                    label: menuLink(
-                      'Profit & Loss',
-                      '/reports/profit-loss',
-                    ),
-                  },
-                ]
-              : []),
-
-            // ----------------------------------------------------
-            // Trial Balance
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'finance.trial-balance.view',
-            )
-              ? [
-                  {
-                    key: '/reports/trial-balance',
-                    icon: <AuditOutlined />,
-                    label: menuLink(
-                      'Trial Balance',
-                      '/reports/trial-balance',
-                    ),
-                  },
-                ]
-              : []),
-
-            // ----------------------------------------------------
-            // Balance Sheet
-            // ----------------------------------------------------
-
-            ...(hasPermission(
-              'finance.balance-sheet.view',
-            )
-              ? [
-                  {
-                    key: '/reports/balance-sheet',
-                    icon: <PieChartOutlined />,
-                    label: menuLink(
-                      'Balance Sheet',
-                      '/reports/balance-sheet',
-                    ),
-                  },
-                ]
-              : []),
-          ],
-        },
-
-        // ========================================================
-        // STAFF
-        // ========================================================
-
-        ...(hasStaffPermission
-          ? [
+          ...(hasPermission(
+            'finance.journal-entries.view',
+          )
+            ? [
               {
-                key: 'staff-group',
-                icon: <TeamOutlined />,
-                label: menuGroupLabel('Staff'),
-
-                children: [
-                  // ------------------------------------------------
-                  // Users
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'staff.users.view',
-                  )
-                    ? [
-                        {
-                          key: '/staff/users',
-                          icon: <UsergroupAddOutlined />,
-                          label: menuLink(
-                            'Users',
-                            '/staff/users',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Roles
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'staff.roles.view',
-                  )
-                    ? [
-                        {
-                          key: '/staff/roles',
-                          icon: (
-                            <SafetyCertificateOutlined />
-                          ),
-                          label: menuLink(
-                            'Roles',
-                            '/staff/roles',
-                          ),
-                        },
-                      ]
-                    : []),
-                ],
-              },
-            ]
-          : []),
-
-        // ========================================================
-        // MASTER DATA
-        // ========================================================
-
-        ...(hasMasterDataPermission
-          ? [
-              {
-                key: 'master-data-group',
-                icon: <ShopOutlined />,
-                label: menuGroupLabel(
-                  'Master Data',
+                key: '/finance/journal-entries',
+                icon: <AuditOutlined />,
+                label: menuLink(
+                  'Journal Entries',
+                  '/finance/journal-entries',
                 ),
-
-                children: [
-                  // ------------------------------------------------
-                  // Vendor
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.vendor.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/vendor',
-                          icon: <TeamOutlined />,
-                          label: menuLink(
-                            'Vendor',
-                            '/master-data/vendor',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Supplier
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.supplier.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/supplier',
-                          icon: <ShoppingOutlined />,
-                          label: menuLink(
-                            'Supplier',
-                            '/master-data/supplier',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Contractor
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.contractor.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/contractor',
-                          icon: <ToolOutlined />,
-                          label: menuLink(
-                            'Contractor',
-                            '/master-data/contractor',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Consultant
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.consultant.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/consultant',
-                          icon: <SolutionOutlined />,
-                          label: menuLink(
-                            'Consultant',
-                            '/master-data/consultant',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Customer
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.customer.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/customer',
-                          icon: <SmileOutlined />,
-                          label: menuLink(
-                            'Customer',
-                            '/master-data/customer',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Projects
-                  // ------------------------------------------------
-
-                  {
-                    key: '/master-data/projects',
-                    icon: <ProjectOutlined />,
-                    label: menuLink(
-                      'Projects',
-                      '/master-data/projects',
-                    ),
-                  },
-
-                  // ------------------------------------------------
-                  // Employees
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.employees.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/employees',
-                          icon: <IdcardOutlined />,
-                          label: menuLink(
-                            'Employees',
-                            '/master-data/employees',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Expense Types
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.expense-types.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/expense-types',
-                          icon: <TagsOutlined />,
-                          label: menuLink(
-                            'Expense Types',
-                            '/master-data/expense-types',
-                          ),
-                        },
-                      ]
-                    : []),
-
-                  // ------------------------------------------------
-                  // Bank Accounts
-                  // ------------------------------------------------
-
-                  ...(hasPermission(
-                    'master-data.bank-accounts.view',
-                  )
-                    ? [
-                        {
-                          key: '/master-data/bank-accounts',
-                          icon: <BankOutlined />,
-                          label: menuLink(
-                            'Bank Accounts',
-                            '/master-data/bank-accounts',
-                          ),
-                        },
-                      ]
-                    : []),
-                ],
               },
             ]
-          : []),
-      ]
-    : [
-        // ========================================================
-        // NO BUSINESS UNIT SELECTED
-        // ========================================================
+            : []),
 
-        {
-          key: '/business-units',
-          icon: <ApartmentOutlined />,
-          label: menuLink(
-            'Business Units',
-            '/business-units',
-          ),
-        },
-      ];
+          // ----------------------------------------------------
+          // Capital Contributions
+          // ----------------------------------------------------
+
+          ...(hasPermission('finance.capital-contributions.view')
+            ? [
+              {
+                key: '/finance/capital-contributions',
+                icon: <DollarOutlined />,
+                label: menuLink(
+                  'Capital Contributions',
+                  '/finance/capital-contributions',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Assets
+          // ----------------------------------------------------
+
+          ...(hasPermission(
+            'master-data.assets.view',
+          )
+            ? [
+              {
+                key: '/finance/assets',
+                icon: <LaptopOutlined />,
+                label: menuLink(
+                  'Assets',
+                  '/finance/assets',
+                ),
+              },
+            ]
+            : []),
+        ],
+      },
+
+      // ========================================================
+      // REPORTS
+      // ========================================================
+
+      {
+        key: 'reports-group',
+        icon: <BarChartOutlined />,
+        label: menuGroupLabel('Reports'),
+
+        children: [
+          // ----------------------------------------------------
+          // Expense Report
+          // ----------------------------------------------------
+
+          {
+            key: '/reports/expense-report',
+            icon: <PieChartOutlined />,
+            label: menuLink(
+              'Expense Report',
+              '/reports/expense-report',
+            ),
+          },
+
+          // ----------------------------------------------------
+          // Project Profitability
+          // ----------------------------------------------------
+
+          {
+            key: '/reports/project-profitability',
+            icon: <FundOutlined />,
+            label: menuLink(
+              'Project Profitability',
+              '/reports/project-profitability',
+            ),
+          },
+
+          // ----------------------------------------------------
+          // General Ledger
+          // ----------------------------------------------------
+
+          ...(hasPermission(
+            'finance.general-ledger.view',
+          )
+            ? [
+              {
+                key: '/reports/general-ledger',
+                icon: <FileTextOutlined />,
+                label: menuLink(
+                  'General Ledger',
+                  '/reports/general-ledger',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Profit & Loss
+          // ----------------------------------------------------
+
+          ...(hasPermission(
+            'finance.profit-loss.view',
+          )
+            ? [
+              {
+                key: '/reports/profit-loss',
+                icon: <BarChartOutlined />,
+                label: menuLink(
+                  'Profit & Loss',
+                  '/reports/profit-loss',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Trial Balance
+          // ----------------------------------------------------
+
+          ...(hasPermission(
+            'finance.trial-balance.view',
+          )
+            ? [
+              {
+                key: '/reports/trial-balance',
+                icon: <AuditOutlined />,
+                label: menuLink(
+                  'Trial Balance',
+                  '/reports/trial-balance',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Balance Sheet
+          // ----------------------------------------------------
+
+          ...(hasPermission(
+            'finance.balance-sheet.view',
+          )
+            ? [
+              {
+                key: '/reports/balance-sheet',
+                icon: <PieChartOutlined />,
+                label: menuLink(
+                  'Balance Sheet',
+                  '/reports/balance-sheet',
+                ),
+              },
+            ]
+            : []),
+        ],
+      },
+
+      // ========================================================
+      // STAFF
+      // ========================================================
+
+      ...(hasStaffPermission
+        ? [
+          {
+            key: 'staff-group',
+            icon: <TeamOutlined />,
+            label: menuGroupLabel('Staff'),
+
+            children: [
+              // ------------------------------------------------
+              // Users
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'staff.users.view',
+              )
+                ? [
+                  {
+                    key: '/staff/users',
+                    icon: <UsergroupAddOutlined />,
+                    label: menuLink(
+                      'Users',
+                      '/staff/users',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Roles
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'staff.roles.view',
+              )
+                ? [
+                  {
+                    key: '/staff/roles',
+                    icon: (
+                      <SafetyCertificateOutlined />
+                    ),
+                    label: menuLink(
+                      'Roles',
+                      '/staff/roles',
+                    ),
+                  },
+                ]
+                : []),
+            ],
+          },
+        ]
+        : []),
+
+      // ========================================================
+      // MASTER DATA
+      // ========================================================
+
+      ...(hasMasterDataPermission
+        ? [
+          {
+            key: 'master-data-group',
+            icon: <ShopOutlined />,
+            label: menuGroupLabel(
+              'Master Data',
+            ),
+
+            children: [
+              // ------------------------------------------------
+              // Vendor
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.vendor.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/vendor',
+                    icon: <TeamOutlined />,
+                    label: menuLink(
+                      'Vendor',
+                      '/master-data/vendor',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Supplier
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.supplier.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/supplier',
+                    icon: <ShoppingOutlined />,
+                    label: menuLink(
+                      'Supplier',
+                      '/master-data/supplier',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Contractor
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.contractor.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/contractor',
+                    icon: <ToolOutlined />,
+                    label: menuLink(
+                      'Contractor',
+                      '/master-data/contractor',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Consultant
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.consultant.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/consultant',
+                    icon: <SolutionOutlined />,
+                    label: menuLink(
+                      'Consultant',
+                      '/master-data/consultant',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Customer
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.customer.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/customer',
+                    icon: <SmileOutlined />,
+                    label: menuLink(
+                      'Customer',
+                      '/master-data/customer',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Projects
+              // ------------------------------------------------
+
+              {
+                key: '/master-data/projects',
+                icon: <ProjectOutlined />,
+                label: menuLink(
+                  'Projects',
+                  '/master-data/projects',
+                ),
+              },
+
+              // ------------------------------------------------
+              // Employees
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.employees.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/employees',
+                    icon: <IdcardOutlined />,
+                    label: menuLink(
+                      'Employees',
+                      '/master-data/employees',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Expense Types
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.expense-types.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/expense-types',
+                    icon: <TagsOutlined />,
+                    label: menuLink(
+                      'Expense Types',
+                      '/master-data/expense-types',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Bank Accounts
+              // ------------------------------------------------
+
+              ...(hasPermission(
+                'master-data.bank-accounts.view',
+              )
+                ? [
+                  {
+                    key: '/master-data/bank-accounts',
+                    icon: <BankOutlined />,
+                    label: menuLink(
+                      'Bank Accounts',
+                      '/master-data/bank-accounts',
+                    ),
+                  },
+                ]
+                : []),
+
+              // ------------------------------------------------
+              // Accounts
+              // ------------------------------------------------
+
+              ...(hasPermission('master-data.accounts.view')
+                ? [
+                  {
+                    key: '/master-data/accounts',
+                    icon: <AuditOutlined />,
+                    label: menuLink('Chart of Accounts', '/master-data/accounts'),
+                  },
+                ]
+                : []),
+
+            ],
+          },
+        ]
+        : []),
+    ]
+    : [
+      // ========================================================
+      // NO BUSINESS UNIT SELECTED
+      // ========================================================
+
+      {
+        key: '/business-units',
+        icon: <ApartmentOutlined />,
+        label: menuLink(
+          'Business Units',
+          '/business-units',
+        ),
+      },
+    ];
 
   return (
     <Layout
@@ -770,6 +829,7 @@ export default function AppLayout() {
               'staff-group',
               'master-data-group',
               'finance-group',
+              'cash-bank-group',
               'reports-group',
             ]}
             items={menuItems}
