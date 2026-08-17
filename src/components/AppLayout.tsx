@@ -660,14 +660,15 @@ export default function AppLayout() {
               // Projects
               // ------------------------------------------------
 
-              {
-                key: '/master-data/projects',
-                icon: <ProjectOutlined />,
-                label: menuLink(
-                  'Projects',
-                  '/master-data/projects',
-                ),
-              },
+              ...(hasPermission('master-data.projects.view')
+                ? [
+                  {
+                    key: '/master-data/projects',
+                    icon: <ProjectOutlined />,
+                    label: menuLink('Projects', '/master-data/projects'),
+                  },
+                ]
+                : []),
 
               // ------------------------------------------------
               // Employees

@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAccounts, type AccountRecord } from '../api/accounts';
 import { createReceipt } from '../api/receipts';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { getProjects, type ProjectRecord } from '../api/projects';
 
 const { Title } = Typography;
 
@@ -28,6 +29,7 @@ export default function ReceiptsForm() {
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [saving, setSaving] = useState(false);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
 
   const loadAccounts = async () => {
     if (!selectedBusinessUnit?.id) {
@@ -43,8 +45,23 @@ export default function ReceiptsForm() {
     }
   };
 
+  const loadProjects = async () => {
+    if (!selectedBusinessUnit?.id) {
+      setProjects([]);
+      return;
+    }
+
+    try {
+      const projectList = await getProjects(selectedBusinessUnit.id);
+      setProjects(projectList);
+    } catch (error) {
+      message.error('Failed to load projects.');
+    }
+  };
+
   useEffect(() => {
     loadAccounts();
+    loadProjects();
     form.setFieldsValue({
       receiptDate: dayjs(),
     });
@@ -80,6 +97,7 @@ export default function ReceiptsForm() {
           receivedFrom: values.receivedFrom || undefined,
           description: values.description || undefined,
           attachmentPath: values.attachmentPath || undefined,
+          projectId: values.projectId || undefined,
         },
         selectedBusinessUnit.id,
       );
@@ -192,6 +210,25 @@ export default function ReceiptsForm() {
             <Col xs={24} md={8}>
               <Form.Item name="attachmentPath" label="Attachment Path">
                 <Input placeholder="Optional" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item name="projectId" label="Project">
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="Optional"
+                  options={projects.map((project) => ({
+                    value: project.id,
+                    label: `${project.code} - ${project.name}`,
+                  }))}
+                  filterOption={(input, option) =>
+                    String(option?.label || '').toLowerCase().includes(input.toLowerCase())
+                  }
+                />
               </Form.Item>
             </Col>
           </Row>

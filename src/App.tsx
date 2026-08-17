@@ -15,7 +15,6 @@ import PermissionRoute from './components/PermissionRoute';
 import UserForm from './pages/UserForm';
 import MasterDataList from './pages/MasterDataList';
 import MasterDataForm from './pages/MasterDataForm';
-import Projects from './pages/Projects';
 import Employees from './pages/Employees';
 import EmployeeForm from './pages/EmployeeForm';
 import Assets from './pages/Assets';
@@ -47,6 +46,8 @@ import Accounts from './pages/Accounts';
 import AccountForm from './pages/AccountForm';
 import CapitalContributions from './pages/CapitalContributions';
 import CapitalContributionForm from './pages/CapitalContributionForm';
+import Projects from './pages/Projects';
+import ProjectForm from './pages/ProjectForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -153,7 +154,30 @@ function AppRoutes() {
         <Route path="master-data/bank-accounts/:id/edit" element={<BankAccountForm />} />
         <Route path="master-data/expense-types/new" element={<ExpenseTypeForm />} />
         <Route path="master-data/expense-types/:id/edit" element={<ExpenseTypeForm />} />
-        <Route path="master-data/projects" element={<Projects />} />
+        <Route
+          path="master-data/projects"
+          element={
+            <PermissionRoute permission="master-data.projects.view">
+              <Projects />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="master-data/projects/add"
+          element={
+            <PermissionRoute permission="master-data.projects.add">
+              <ProjectForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="master-data/projects/:id/edit"
+          element={
+            <PermissionRoute permission="master-data.projects.edit">
+              <ProjectForm />
+            </PermissionRoute>
+          }
+        />
         <Route path="master-data/employees" element={<Employees />} />
         <Route path="master-data/employees/new" element={<EmployeeForm />} />
         <Route path="master-data/employees/:id/edit" element={<EmployeeForm />} />

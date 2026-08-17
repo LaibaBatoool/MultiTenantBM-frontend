@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAccounts, type AccountRecord } from '../api/accounts';
 import { createExpense } from '../api/expenses';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { getProjects, type ProjectRecord } from '../api/projects';
 
 const { Title } = Typography;
 
@@ -29,6 +30,7 @@ export default function ExpensesForm() {
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [saving, setSaving] = useState(false);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
 
   const loadAccounts = async () => {
     if (!selectedBusinessUnit?.id) {
@@ -44,8 +46,23 @@ export default function ExpensesForm() {
     }
   };
 
+  const loadProjects = async () => {
+    if (!selectedBusinessUnit?.id) {
+      setProjects([]);
+      return;
+    }
+
+    try {
+      const projectList = await getProjects(selectedBusinessUnit.id);
+      setProjects(projectList);
+    } catch (error) {
+      message.error('Failed to load projects.');
+    }
+  };
+
   useEffect(() => {
     loadAccounts();
+    loadProjects();
     form.setFieldsValue({
       expenseDate: dayjs(),
     });
@@ -242,12 +259,21 @@ export default function ExpensesForm() {
             <Col xs={24} md={8}>
               <Form.Item
                 name="projectId"
-                label="Project ID"
+                label="Project"
               >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  min={0}
+                <Select
+                  allowClear
+                  showSearch
                   placeholder="Optional"
+                  options={projects.map((project) => ({
+                    value: project.id,
+                    label: `${project.code} - ${project.name}`,
+                  }))}
+                  filterOption={(input, option) =>
+                    String(option?.label || '')
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
               </Form.Item>
             </Col>

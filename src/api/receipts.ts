@@ -6,6 +6,7 @@ export interface ReceiptRecord {
   receivingAccountId: number;
   againstAccountId: number;
   amount: number;
+  projectId: number | null;
   receivedFrom: string | null;
   description: string | null;
   attachmentPath: string | null;
@@ -22,6 +23,7 @@ export interface ReceiptPayload {
   receivingAccountId: number;
   againstAccountId: number;
   amount: number;
+  projectId?: number;
   receivedFrom?: string;
   description?: string;
   attachmentPath?: string;
