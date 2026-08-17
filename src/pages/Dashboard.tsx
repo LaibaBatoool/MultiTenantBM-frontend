@@ -232,9 +232,9 @@ function FinancialCard({
 
           <div
             style={{
-              width: 30,
-              height: 30,
-              minWidth: 30,
+              width: 25,
+              height: 25,
+              minWidth: 25,
               borderRadius: token.borderRadius,
               background:
                 iconColor
