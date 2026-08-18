@@ -18,7 +18,7 @@ import { useBusinessUnit } from '../context/BusinessUnitContext';
 
 const { Title } = Typography;
 
-const ACCOUNT_TYPES = ['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE', 'COGS'];
+const ACCOUNT_TYPES = ['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE', 'COGS'];
 
 export default function AccountForm() {
   const { selectedBusinessUnit } = useBusinessUnit();
