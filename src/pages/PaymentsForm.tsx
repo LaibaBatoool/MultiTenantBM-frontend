@@ -20,12 +20,18 @@ import { createPayment } from '../api/payments';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { getProjects, type ProjectRecord } from '../api/projects';
 
+import { Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { uploadFile, deleteFile } from '../api/files';
+
 const { Title } = Typography;
 
 export default function PaymentsForm() {
   const { selectedBusinessUnit } = useBusinessUnit();
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [uploading, setUploading] = useState(false);
+  const [attachmentName, setAttachmentName] = useState<string>();
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [saving, setSaving] = useState(false);
@@ -109,6 +115,34 @@ export default function PaymentsForm() {
       message.error(error?.response?.data?.message || 'Payment cant be created.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const uploaded = await uploadFile(file);
+      form.setFieldsValue({ attachmentPath: uploaded.url });
+      setAttachmentName(uploaded.originalName);
+      message.success('File uploaded successfully.');
+    } catch (error) {
+      message.error('File upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileRemove = async () => {
+    const currentUrl = form.getFieldValue('attachmentPath');
+    form.setFieldsValue({ attachmentPath: undefined });
+    setAttachmentName(undefined);
+
+    if (currentUrl) {
+      try {
+        await deleteFile(currentUrl);
+      } catch (error) {
+        message.error('Failed to remove uploaded file.');
+      }
     }
   };
 
@@ -227,8 +261,23 @@ export default function PaymentsForm() {
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
-              <Form.Item name="attachmentPath" label="Attachment Path">
-                <Input placeholder="Optional" />
+              <Form.Item label="Attachment">
+                <Upload
+                  maxCount={1}
+                  beforeUpload={(file) => {
+                    handleFileUpload(file);
+                    return false;
+                  }}
+                  onRemove={handleFileRemove}
+                  fileList={attachmentName ? [{ uid: '-1', name: attachmentName, status: 'done' }] : []}
+                >
+                  <Button icon={<UploadOutlined />} loading={uploading}>
+                    {uploading ? 'Uploading...' : 'Choose File'}
+                  </Button>
+                </Upload>
+              </Form.Item>
+              <Form.Item name="attachmentPath" hidden>
+                <Input />
               </Form.Item>
             </Col>
 

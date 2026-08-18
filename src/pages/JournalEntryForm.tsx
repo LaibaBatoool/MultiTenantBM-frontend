@@ -21,12 +21,14 @@ import { createJournalEntry, getJournalEntry } from '../api/journalEntries';
 import { getAccounts, type AccountRecord } from '../api/accounts';
 import { getFiscalYears, type FiscalYearRecord } from '../api/fiscalYears';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { getProjects, type ProjectRecord } from '../api/projects';
 
 const { Title, Text } = Typography;
 
 interface LineRow {
   key: string;
   accountId?: number;
+  projectId?: number;
   description?: string;
   debit?: number;
   credit?: number;
@@ -44,6 +46,7 @@ export default function JournalEntryForm() {
   const backPath = (location.state as { from?: string } | null)?.from || '/finance/journal-entries';
 
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [fiscalYears, setFiscalYears] = useState<FiscalYearRecord[]>([]);
   const [postingDate, setPostingDate] = useState<Dayjs | null>(dayjs());
   const [description, setDescription] = useState('');
@@ -56,6 +59,7 @@ export default function JournalEntryForm() {
   useEffect(() => {
     if (selectedBusinessUnit?.id) {
       loadAccounts();
+      loadProjects();
       loadFiscalYears();
     }
   }, [selectedBusinessUnit]);
@@ -72,6 +76,15 @@ export default function JournalEntryForm() {
       setAccounts(acc.filter((a) => !a.isGroup));
     } catch (error) {
       message.error('Failed to load accounts');
+    }
+  };
+
+  const loadProjects = async () => {
+    try {
+      const projectList = await getProjects(selectedBusinessUnit?.id);
+      setProjects(projectList);
+    } catch (error) {
+      message.error('Failed to load projects');
     }
   };
 
@@ -98,6 +111,7 @@ export default function JournalEntryForm() {
           description: line.description,
           debit: Number(line.debit) > 0 ? Number(line.debit) : undefined,
           credit: Number(line.credit) > 0 ? Number(line.credit) : undefined,
+          projectId: line.projectId ?? undefined,
         })),
       );
     } catch (error) {
@@ -228,6 +242,7 @@ export default function JournalEntryForm() {
             .filter((r) => r.accountId || r.debit || r.credit)
             .map((r) => ({
               accountId: r.accountId!,
+              projectId: r.projectId,
               description: r.description,
               debit: r.debit || 0,
               credit: r.credit || 0,
@@ -337,6 +352,23 @@ export default function JournalEntryForm() {
                   optionFilterProp="label"
                   onChange={(v) => updateRow(row.key, { accountId: v })}
                   options={accounts.map((a) => ({ value: a.id, label: `${a.code} — ${a.name}` }))}
+                />
+              ),
+            },
+            {
+              title: 'Project',
+              width: 200,
+              render: (_, row: LineRow) => (
+                <Select
+                  allowClear
+                  showSearch
+                  style={{ width: '100%' }}
+                  placeholder="Optional"
+                  value={row.projectId}
+                  disabled={isViewMode}
+                  optionFilterProp="label"
+                  onChange={(v) => updateRow(row.key, { projectId: v })}
+                  options={projects.map((p) => ({ value: p.id, label: `${p.code} — ${p.name}` }))}
                 />
               ),
             },
