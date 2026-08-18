@@ -130,7 +130,7 @@ export default function GeneralLedger() {
         fiscalYearId: defaultFiscalYearId,
       });
     } catch (error) {
-      message.error('Filters load nahi ho sakay.');
+      message.error('Failed to load filters.');
     } finally {
       setLoadingFilters(false);
     }
@@ -291,7 +291,7 @@ export default function GeneralLedger() {
             })
           }
         >
-          Excel Report
+          Excel
         </Button>
       </div>
 
