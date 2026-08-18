@@ -232,14 +232,18 @@ export default function AppLayout() {
       // DASHBOARD
       // ========================================================
 
-      {
-        key: '/',
-        icon: <DashboardOutlined />,
-        label: menuLink(
-          'Dashboard',
-          '/',
-        ),
-      },
+      ...(hasPermission('dashboard.view')
+        ? [
+          {
+            key: '/',
+            icon: <DashboardOutlined />,
+            label: menuLink(
+              'Dashboard',
+              '/',
+            ),
+          },
+        ]
+        : []),
 
       // ========================================================
       // FINANCE
@@ -404,14 +408,18 @@ export default function AppLayout() {
           // Project Profitability
           // ----------------------------------------------------
 
-          {
-            key: '/reports/project-profitability',
-            icon: <FundOutlined />,
-            label: menuLink(
-              'Project Profitability',
-              '/reports/project-profitability',
-            ),
-          },
+          ...(hasPermission('finance.project-profitability.view')
+            ? [
+              {
+                key: '/reports/project-profitability',
+                icon: <FundOutlined />,
+                label: menuLink(
+                  'Project Profitability',
+                  '/reports/project-profitability',
+                ),
+              },
+            ]
+            : []),
 
           // ----------------------------------------------------
           // General Ledger

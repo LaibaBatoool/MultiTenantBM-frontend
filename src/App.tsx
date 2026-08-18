@@ -88,8 +88,18 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={selectedBusinessUnit ? <Dashboard /> : <Navigate to="/business-units" />} />
         <Route
+          index
+          element={
+            selectedBusinessUnit ? (
+              <PermissionRoute permission="dashboard.view">
+                <Dashboard />
+              </PermissionRoute>
+            ) : (
+              <Navigate to="/business-units" />
+            )
+          }
+        />        <Route
           path="business-units"
           element={isSuperadmin ? <BusinessUnits /> : <Navigate to="/" />}
         />
@@ -308,8 +318,14 @@ function AppRoutes() {
         <Route path="finance/assets/new" element={<AssetForm />} />
         <Route path="finance/assets/:id/edit" element={<AssetForm />} />
         <Route path="reports/expense-report" element={<ExpenseReport />} />
-        <Route path="reports/project-profitability" element={<ProjectProfitability />} />
         <Route
+          path="reports/project-profitability"
+          element={
+            <PermissionRoute permission="finance.project-profitability.view">
+              <ProjectProfitability />
+            </PermissionRoute>
+          }
+        />        <Route
           path="reports/general-ledger"
           element={
             <PermissionRoute permission="finance.general-ledger.view">
