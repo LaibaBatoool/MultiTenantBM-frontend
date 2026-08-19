@@ -6,7 +6,7 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 import { uploadFile, deleteFile, type UploadedFile } from '../api/files';
-import { SERVER_BASE } from '../constants/api';
+import { SERVER_BASE, resolveFileUrl } from '../constants/api';
 
 interface FileUploadFieldProps {
   value?: UploadedFile | null;
@@ -34,7 +34,7 @@ const FileUploadField = forwardRef<
       const uploaded = await uploadFile(file);
 
       if (freshlyUploadedUrl.current) {
-        deleteFile(freshlyUploadedUrl.current).catch(() => {});
+        deleteFile(freshlyUploadedUrl.current).catch(() => { });
       }
 
       freshlyUploadedUrl.current = uploaded.url;
@@ -53,7 +53,7 @@ const FileUploadField = forwardRef<
   useImperativeHandle(ref, () => ({
     discardUnsavedUpload: () => {
       if (freshlyUploadedUrl.current) {
-        deleteFile(freshlyUploadedUrl.current).catch(() => {});
+        deleteFile(freshlyUploadedUrl.current).catch(() => { });
         freshlyUploadedUrl.current = null;
       }
     },
@@ -78,7 +78,7 @@ const FileUploadField = forwardRef<
       {variant === 'image' && value?.url && (
         <div style={{ marginTop: 8 }}>
           <Image
-            src={`${SERVER_BASE}${value.url}`}
+            src={resolveFileUrl(value.url)}
             width={80}
           />
         </div>

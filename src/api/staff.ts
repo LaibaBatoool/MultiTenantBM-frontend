@@ -7,8 +7,7 @@ export interface Staff {
   email: string;
   businessUnitId: number | null;
   companyId: number | null;
-  profilePictureId: number | null;
-  profilePicture?: { id: number; url: string; originalName: string } | null;
+  profilePicture?: string | null;
 }
 
 export const getStaff = async (
@@ -31,7 +30,7 @@ export interface CreateStaffPayload {
   username: string;
   email: string;
   password: string;
-  profilePictureId?: number;
+  profilePicture?: string;
 }
 
 export const createStaff = async (payload: CreateStaffPayload, businessUnitId?: number) => {
@@ -41,7 +40,7 @@ export const createStaff = async (payload: CreateStaffPayload, businessUnitId?: 
 
 export const updateStaff = async (
   id: number,
-  payload: { fullName?: string; email?: string; profilePictureId?: number },
+  payload: { fullName?: string; email?: string; profilePicture?: string },
   businessUnitId?: number,
 ) => {
   const response = await api.patch(`/staff/${id}`, payload, { params: { businessUnitId } });

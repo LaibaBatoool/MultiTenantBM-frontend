@@ -8,7 +8,7 @@ export interface CompanyRecord {
   address: string | null;
   website: string | null;
   isActive: boolean;
-  logo?: { id: number; url: string } | null;
+  logo?: string | null;
   admin?: { id: number; fullName: string; username: string; email: string } | null;
   createdAt: string;
   createdByUser?: { username: string };
@@ -23,7 +23,7 @@ export interface CreateCompanyPayload {
   email?: string;
   address?: string;
   website?: string;
-  logoId?: number;
+  logoId?: string;
   adminFullName: string;
   adminUsername: string;
   adminEmail: string;
@@ -58,7 +58,7 @@ export const updateCompanyOfType = async (
     email?: string;
     address?: string;
     website?: string;
-    logoId?: number;
+    logoId?: string;
     adminFullName?: string;
     adminUsername?: string;
     adminEmail?: string;

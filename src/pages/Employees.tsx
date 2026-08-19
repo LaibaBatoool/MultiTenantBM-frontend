@@ -21,7 +21,7 @@ import {
 } from '../api/employees';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
-import { SERVER_BASE } from '../constants/api';
+import { SERVER_BASE, resolveFileUrl } from '../constants/api';
 
 const { Title } = Typography;
 
@@ -83,7 +83,7 @@ export default function Employees() {
         <Avatar
           src={
             record.user?.profilePicture
-              ? `${SERVER_BASE}${record.user.profilePicture}`
+              ? resolveFileUrl(record.user?.profilePicture)
               : undefined
           }
           icon={

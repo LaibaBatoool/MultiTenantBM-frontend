@@ -28,7 +28,7 @@ export const updateMyProfile = async (payload: {
   fullName?: string;
   email?: string;
   password?: string;
-  profilePictureId?: number;
+  profilePicture?: string;
 }) => {
   const response = await api.patch('/auth/me', payload);
   return response.data;

@@ -50,7 +50,7 @@ import {
 
 import type { MenuProps } from 'antd';
 
-import { SERVER_BASE } from '../constants/api';
+import { SERVER_BASE, resolveFileUrl } from '../constants/api';
 
 const { Header, Sider, Content } = Layout;
 
@@ -915,7 +915,7 @@ export default function AppLayout() {
               }}
               src={
                 currentUser?.profilePic
-                  ? `${SERVER_BASE}${currentUser.profilePic}`
+                  ? resolveFileUrl(currentUser.profilePic) 
                   : undefined
               }
               icon={

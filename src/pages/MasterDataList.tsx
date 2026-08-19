@@ -19,7 +19,7 @@ import {
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
-import { SERVER_BASE } from '../constants/api';
+import { SERVER_BASE, resolveFileUrl } from '../constants/api';
 
 const { Title } = Typography;
 
@@ -94,7 +94,7 @@ export default function MasterDataList() {
           shape="circle"
           src={
             record.logo
-              ? `${SERVER_BASE}${record.logo}`
+              ? resolveFileUrl(record.logo) 
               : undefined
           }
         />

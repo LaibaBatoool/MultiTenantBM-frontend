@@ -41,7 +41,9 @@ export default function MasterDataForm() {
         email: company.email,
         address: company.address,
         website: company.website,
-        logo: company.logo ? { url: company.logo } : null,
+        logo: company.logo
+          ? ({ url: company.logo, originalName: 'Logo' } as any)
+          : null,
         adminFullName: company.admin?.fullName,
         adminUsername: company.admin?.username,
         adminEmail: company.admin?.email,
@@ -133,7 +135,7 @@ export default function MasterDataForm() {
               name="adminUsername"
               rules={[{ required: true, message: 'Username is required' }]}
             >
-              <Input/>
+              <Input />
             </Form.Item>
             <Row gutter={16}>
               <Col span={12}>
@@ -144,9 +146,9 @@ export default function MasterDataForm() {
                     isEditMode
                       ? [{ min: 6, message: 'Minimum 6 characters' }]
                       : [
-                          { required: true, message: 'Password is required' },
-                          { min: 6, message: 'Minimum 6 characters' },
-                        ]
+                        { required: true, message: 'Password is required' },
+                        { min: 6, message: 'Minimum 6 characters' },
+                      ]
                   }
                 >
                   <Input.Password placeholder={isEditMode ? 'Leave blank to keep current' : ''} />

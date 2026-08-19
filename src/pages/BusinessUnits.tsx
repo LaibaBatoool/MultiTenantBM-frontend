@@ -29,7 +29,7 @@ import {
 } from '../api/businessUnits';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
-import { SERVER_BASE } from '../constants/api';
+import { SERVER_BASE, resolveFileUrl } from '../constants/api';
 
 const { Title } = Typography;
 
@@ -207,7 +207,7 @@ export default function BusinessUnits() {
                   <Avatar
                     src={
                       bu.logo
-                        ? `${SERVER_BASE}${bu.logo}`
+                        ? resolveFileUrl(bu.logo)
                         : undefined
                     }
                     icon={

@@ -10,12 +10,12 @@ export interface Employee {
   phone: string | null;
   isActive: boolean;
   user?: {
-    id: number;
-    fullName: string;
-    username: string;
-    email: string;
-    profilePicture?: { id: number; url: string } | null;
-  };
+  id: number;
+  fullName: string;
+  username: string;
+  email: string;
+  profilePicture?: string | null;
+};
 }
 
 export interface CreateEmployeePayload {

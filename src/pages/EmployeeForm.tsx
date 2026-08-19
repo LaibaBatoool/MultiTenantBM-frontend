@@ -27,7 +27,7 @@ export default function EmployeeForm() {
       const employee = await getEmployee(Number(id), selectedBusinessUnit?.id);
       form.setFieldsValue({
         profilePicture: employee.user?.profilePicture
-          ? { id: employee.user.profilePicture.id, url: employee.user.profilePicture.url }
+          ? ({ url: employee.user.profilePicture, originalName: 'Profile Picture' } as any)
           : null,
         fullName: employee.user?.fullName,
         username: employee.user?.username,
@@ -49,7 +49,7 @@ export default function EmployeeForm() {
     const payload = {
       ...rest,
       joiningDate: joiningDate ? joiningDate.format('YYYY-MM-DD') : undefined,
-      profilePictureId: profilePicture?.id,
+      profilePicture: profilePicture?.url,
     };
     if (isEditMode && !payload.password) delete payload.password;
 

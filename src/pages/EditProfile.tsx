@@ -54,7 +54,7 @@ export default function EditProfile() {
         fullName: rest.fullName,
         email: rest.email,
         password: rest.password || undefined,
-        profilePictureId: profilePicture?.id,
+        profilePicture: profilePicture?.url,
       });
 
       message.success('Profile updated');
@@ -68,8 +68,8 @@ export default function EditProfile() {
     } catch (error: any) {
       message.error(
         error?.response?.data?.message?.[0] ||
-          error?.response?.data?.message ||
-          'Failed to update profile',
+        error?.response?.data?.message ||
+        'Failed to update profile',
       );
     } finally {
       setLoading(false);
