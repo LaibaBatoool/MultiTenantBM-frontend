@@ -12,7 +12,6 @@ import {
   Typography,
   message,
 } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 

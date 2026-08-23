@@ -291,7 +291,7 @@ export default function JournalEntryForm() {
               Post
             </Button>
           )}
-          <Button onClick={() => navigate(-1)}>Back</Button>
+          <Button onClick={() => navigate(backPath)}>Back</Button>
         </div>
       </div>
 

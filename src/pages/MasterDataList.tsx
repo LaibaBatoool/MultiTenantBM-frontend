@@ -19,7 +19,7 @@ import {
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/date';
-import { SERVER_BASE, resolveFileUrl } from '../constants/api';
+import { resolveFileUrl } from '../constants/api';
 
 const { Title } = Typography;
 

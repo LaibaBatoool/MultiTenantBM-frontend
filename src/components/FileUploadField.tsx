@@ -6,7 +6,7 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 import { uploadFile, deleteFile, type UploadedFile } from '../api/files';
-import { SERVER_BASE, resolveFileUrl } from '../constants/api';
+import { resolveFileUrl } from '../constants/api';
 
 interface FileUploadFieldProps {
   value?: UploadedFile | null;

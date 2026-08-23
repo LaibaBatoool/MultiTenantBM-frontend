@@ -27,8 +27,7 @@ export default function Roles() {
     }
     setLoading(true);
     try {
-      const result = await getRoles(selectedBusinessUnit.id, page, pageSize);
-      // getRoles returns an array of Role; update state accordingly
+      const result = await getRoles(selectedBusinessUnit.id);
       setData(result);
       setTotal(result.length);
     } catch (error) {

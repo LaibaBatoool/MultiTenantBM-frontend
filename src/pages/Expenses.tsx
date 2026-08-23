@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Divider, Table, Typography, message } from 'antd';
+import { Button, Table, Typography, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { getExpenses, type ExpenseRecord } from '../api/expenses';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export default function Expenses() {
   const { selectedBusinessUnit } = useBusinessUnit();

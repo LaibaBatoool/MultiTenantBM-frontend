@@ -50,7 +50,7 @@ import {
 
 import type { MenuProps } from 'antd';
 
-import { SERVER_BASE, resolveFileUrl } from '../constants/api';
+import { resolveFileUrl } from '../constants/api';
 
 const { Header, Sider, Content } = Layout;
 

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getRole, createRole, updateRole } from '../api/roles';
 import { getPermissionTree, type PermissionNode as PermissionNodeType } from '../api/modules';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
-import { CaretDownFilled, CaretRightFilled, DownOutlined, RightOutlined } from '@ant-design/icons';
+import { CaretDownFilled, CaretRightFilled } from '@ant-design/icons';
 
 const { Title } = Typography;
 
