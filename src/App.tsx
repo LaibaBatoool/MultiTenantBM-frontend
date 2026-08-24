@@ -33,6 +33,10 @@ import JournalEntryForm from './pages/JournalEntryForm';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import TrialBalance from './pages/TrialBalance';
+import AccountsReceivable from './pages/AccountsReceivable';
+import AccountsReceivableLedger from './pages/AccountsReceivableLedger';
+import AccountsPayable from './pages/AccountsPayable';
+import AccountsPayableLedger from './pages/AccountsPayableLedger';
 import ProfitAndLoss from './pages/ProfitAndLoss';
 import BalanceSheet from './pages/BalanceSheet';
 import ExpensesForm from './pages/ExpensesForm';
@@ -48,6 +52,8 @@ import CapitalContributions from './pages/CapitalContributions';
 import CapitalContributionForm from './pages/CapitalContributionForm';
 import Projects from './pages/Projects';
 import ProjectForm from './pages/ProjectForm';
+import SalesInvoices from './pages/SalesInvoices';
+import SalesInvoiceForm from './pages/SalesInvoiceForm';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -354,6 +360,62 @@ function AppRoutes() {
           element={
             <PermissionRoute permission="finance.trial-balance.view">
               <TrialBalance />
+            </PermissionRoute>
+          }
+        />
+                <Route
+          path="reports/accounts-receivable"
+          element={
+            <PermissionRoute permission="finance.accounts-receivable.view">
+              <AccountsReceivable />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="reports/accounts-receivable/:id"
+          element={
+            <PermissionRoute permission="finance.accounts-receivable.view">
+              <AccountsReceivableLedger />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="reports/accounts-payable"
+          element={
+            <PermissionRoute permission="finance.accounts-payable.view">
+              <AccountsPayable />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="reports/accounts-payable/:id"
+          element={
+            <PermissionRoute permission="finance.accounts-payable.view">
+              <AccountsPayableLedger />
+            </PermissionRoute>
+          }
+        />
+                <Route
+          path="finance/sales-invoices"
+          element={
+            <PermissionRoute permission="finance.sales-invoices.view">
+              <SalesInvoices />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/sales-invoices/new"
+          element={
+            <PermissionRoute permission="finance.sales-invoices.add">
+              <SalesInvoiceForm />
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="finance/sales-invoices/:id"
+          element={
+            <PermissionRoute permission="finance.sales-invoices.view">
+              <SalesInvoiceForm />
             </PermissionRoute>
           }
         />

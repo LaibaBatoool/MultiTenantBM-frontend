@@ -37,6 +37,9 @@ import {
   PieChartOutlined,
   FileTextOutlined,
   AuditOutlined,
+  ContactsOutlined,
+  CreditCardOutlined,
+  FileDoneOutlined,
 } from '@ant-design/icons';
 
 import { useAuth } from '../context/AuthContext';
@@ -378,6 +381,23 @@ export default function AppLayout() {
               },
             ]
             : []),
+
+          // ----------------------------------------------------
+          // Sales Invoices
+          // ----------------------------------------------------
+
+          ...(hasPermission('finance.sales-invoices.view')
+            ? [
+              {
+                key: '/finance/sales-invoices',
+                icon: <FileDoneOutlined />,
+                label: menuLink(
+                  'Sales Invoices',
+                  '/finance/sales-invoices',
+                ),
+              },
+            ]
+            : []),
         ],
       },
 
@@ -492,6 +512,40 @@ export default function AppLayout() {
                 label: menuLink(
                   'Balance Sheet',
                   '/reports/balance-sheet',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Accounts Receivable
+          // ----------------------------------------------------
+
+          ...(hasPermission('finance.accounts-receivable.view')
+            ? [
+              {
+                key: '/reports/accounts-receivable',
+                icon: <ContactsOutlined />,
+                label: menuLink(
+                  'Accounts Receivable',
+                  '/reports/accounts-receivable',
+                ),
+              },
+            ]
+            : []),
+
+          // ----------------------------------------------------
+          // Accounts Payable
+          // ----------------------------------------------------
+
+          ...(hasPermission('finance.accounts-payable.view')
+            ? [
+              {
+                key: '/reports/accounts-payable',
+                icon: <CreditCardOutlined />,
+                label: menuLink(
+                  'Accounts Payable',
+                  '/reports/accounts-payable',
                 ),
               },
             ]
@@ -915,7 +969,7 @@ export default function AppLayout() {
               }}
               src={
                 currentUser?.profilePic
-                  ? resolveFileUrl(currentUser.profilePic) 
+                  ? resolveFileUrl(currentUser.profilePic)
                   : undefined
               }
               icon={
