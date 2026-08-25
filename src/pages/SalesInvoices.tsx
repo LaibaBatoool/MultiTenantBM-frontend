@@ -3,8 +3,8 @@ import { Button, Table, Typography, message, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { getSalesInvoices, type SalesInvoiceRecord } from '../api/salesInvoices';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { getSalesInvoices, exportSalesInvoices, type SalesInvoiceRecord } from '../api/salesInvoices';
 
 const { Title } = Typography;
 
@@ -14,6 +14,7 @@ export default function SalesInvoices() {
 
   const [invoices, setInvoices] = useState<SalesInvoiceRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const loadInvoices = async () => {
     if (!selectedBusinessUnit?.id) {
@@ -37,7 +38,15 @@ export default function SalesInvoices() {
   }, [selectedBusinessUnit]);
 
   const columns = [
-    { title: 'Voucher', key: 'voucher', render: (_: unknown, record: SalesInvoiceRecord) => record.journal?.voucherNo || '' },
+    {
+      title: 'Voucher',
+      key: 'voucher',
+      render: (_: unknown, record: SalesInvoiceRecord) => (
+        <a onClick={() => navigate(`${record.id}`)} style={{ color: '#1677ff' }}>
+          {record.journal?.voucherNo || `#${record.id}`}
+        </a>
+      ),
+    },    
     {
       title: 'Date',
       dataIndex: 'invoiceDate',
@@ -73,6 +82,18 @@ export default function SalesInvoices() {
     },
   ];
 
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportSalesInvoices(selectedBusinessUnit?.id);
+    } catch (error) {
+      message.error('Excel export nahi ho saka.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -80,9 +101,14 @@ export default function SalesInvoices() {
           Sales Invoices ({invoices.length})
         </Title>
 
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('new')}>
-          Add New
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('new')}>
+            Add New
+          </Button>
+          <Button style={{ width: 100, marginLeft: 8 }} type="primary" onClick={handleExport} loading={exporting} >
+            Excel
+          </Button>
+        </div>
       </div>
 
       <Table
@@ -91,10 +117,6 @@ export default function SalesInvoices() {
         rowKey="id"
         loading={loading}
         pagination={{ pageSize: 10 }}
-        onRow={(record) => ({
-          onClick: () => navigate(`${record.id}`),
-          style: { cursor: 'pointer' },
-        })}
       />
     </div>
   );

@@ -55,3 +55,27 @@ export const createSalesInvoice = async (payload: SalesInvoicePayload, businessU
   const response = await api.post('/sales-invoices', payload, { params: { businessUnitId } });
   return response.data;
 };
+
+export const exportSalesInvoices = async (businessUnitId?: number): Promise<void> => {
+  const response = await api.get('/sales-invoices/export', { params: { businessUnitId }, responseType: 'blob' });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'sales-invoices.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const downloadSalesInvoicePdf = async (id: number, businessUnitId?: number): Promise<void> => {
+  const response = await api.get(`/sales-invoices/${id}/pdf`, { params: { businessUnitId }, responseType: 'blob' });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `invoice-${id}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

@@ -44,3 +44,18 @@ export const getAccountsReceivableLedger = async (
   const response = await api.get(`/accounts-receivable/customers/${customerId}/ledger`, { params: { businessUnitId } });
   return response.data;
 };
+
+export const exportAccountsReceivable = async (businessUnitId?: number): Promise<void> => {
+  const response = await api.get('/accounts-receivable/customers/export', {
+    params: { businessUnitId },
+    responseType: 'blob',
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'accounts-receivable.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Typography, message } from 'antd';
+import { Button, Table, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { getAccountsReceivableCustomers, type AccountsReceivableCustomer } from '../api/accountsReceivable';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { getAccountsReceivableCustomers, exportAccountsReceivable, type AccountsReceivableCustomer } from '../api/accountsReceivable';
 
 const { Title, Text } = Typography;
 
@@ -13,6 +13,7 @@ export default function AccountsReceivable() {
   const [customers, setCustomers] = useState<AccountsReceivableCustomer[]>([]);
   const [totalReceivable, setTotalReceivable] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const loadCustomers = async () => {
     if (!selectedBusinessUnit?.id) {
@@ -56,6 +57,17 @@ export default function AccountsReceivable() {
     },
   ];
 
+    const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportAccountsReceivable(selectedBusinessUnit?.id);
+    } catch (error) {
+      message.error('Excel export nahi ho saka.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -65,6 +77,9 @@ export default function AccountsReceivable() {
         <Text strong>
           Total Receivable: {totalReceivable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
+        <Button style={{ width: 100}} type="primary" onClick={handleExport} loading={exporting}>
+          Excel
+        </Button>
       </div>
 
       <Table

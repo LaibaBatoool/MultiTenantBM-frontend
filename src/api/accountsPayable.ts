@@ -44,3 +44,18 @@ export const getAccountsPayableLedger = async (
   const response = await api.get(`/accounts-payable/vendors/${vendorId}/ledger`, { params: { businessUnitId } });
   return response.data;
 };
+
+export const exportAccountsPayable = async (businessUnitId?: number): Promise<void> => {
+  const response = await api.get('/accounts-payable/vendors/export', {
+    params: { businessUnitId },
+    responseType: 'blob',
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'accounts-payable.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

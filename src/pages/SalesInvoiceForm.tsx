@@ -19,10 +19,10 @@ import {
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createSalesInvoice, getSalesInvoice, type SalesInvoiceRecord } from '../api/salesInvoices';
 import { getCompaniesByType, type CompanyRecord } from '../api/companies';
 import { getProjects, type ProjectRecord } from '../api/projects';
 import { useBusinessUnit } from '../context/BusinessUnitContext';
+import { createSalesInvoice, getSalesInvoice, downloadSalesInvoicePdf, type SalesInvoiceRecord } from '../api/salesInvoices';
 
 const { Title, Text } = Typography;
 
@@ -51,6 +51,7 @@ export default function SalesInvoiceForm() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (selectedBusinessUnit?.id) {
@@ -65,6 +66,18 @@ export default function SalesInvoiceForm() {
       loadInvoice();
     }
   }, [id, selectedBusinessUnit]);
+
+  const handleDownloadPdf = async () => {
+    if (!invoice) return;
+    setDownloading(true);
+    try {
+      await downloadSalesInvoicePdf(invoice.id, selectedBusinessUnit?.id);
+    } catch (error) {
+      message.error('PDF cant be downloaded');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const loadCustomers = async () => {
     try {
@@ -127,7 +140,7 @@ export default function SalesInvoiceForm() {
       .map((r) => ({ description: r.description!, quantity: r.quantity!, unitPrice: r.unitPrice! }));
 
     if (items.length < 1) {
-      message.warning('Kam az kam 1 item add karein.');
+      message.warning('Add at least 1 item.');
       return;
     }
 
@@ -169,7 +182,14 @@ export default function SalesInvoiceForm() {
         <Title level={3} style={{ margin: 0 }}>
           {isViewMode ? `Invoice ${invoice?.journal?.voucherNo || ''}` : 'New Sales Invoice'}
         </Title>
-        <Button onClick={() => navigate(-1)}>Back</Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {isViewMode && (
+            <Button type='primary' onClick={handleDownloadPdf} loading={downloading}>
+              Download PDF
+            </Button>
+          )}
+          <Button onClick={() => navigate(-1)}>Back</Button>
+        </div>
       </div>
 
       <Card style={{ marginBottom: 16 }}>
