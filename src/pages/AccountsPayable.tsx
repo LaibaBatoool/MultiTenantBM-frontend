@@ -27,7 +27,7 @@ export default function AccountsPayable() {
       setCustomers(data.vendors);
       setTotalPayable(data.totalPayable);
     } catch (error) {
-      message.error('Accounts Payable load nahi ho saka.');
+      message.error('Accounts Payable failed to load.');
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function AccountsPayable() {
     try {
       await exportAccountsPayable(selectedBusinessUnit?.id);
     } catch (error) {
-      message.error('Excel export nahi ho saka.');
+      message.error('Excel cant be exported.');
     } finally {
       setExporting(false);
     }

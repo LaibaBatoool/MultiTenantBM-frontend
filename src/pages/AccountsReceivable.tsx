@@ -27,7 +27,7 @@ export default function AccountsReceivable() {
       setCustomers(data.customers);
       setTotalReceivable(data.totalReceivable);
     } catch (error) {
-      message.error('Accounts Receivable load nahi ho saka.');
+      message.error('Accounts Receivable failed to load.');
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function AccountsReceivable() {
     try {
       await exportAccountsReceivable(selectedBusinessUnit?.id);
     } catch (error) {
-      message.error('Excel export nahi ho saka.');
+      message.error('Excel cant be exported.');
     } finally {
       setExporting(false);
     }
